@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Typing Speed Game</title>
+
+  <link rel="stylesheet" href="style.css">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+
+<body>
+
+  <div class="bg-animation"></div>
+
+  <div class="container">
+
+    <h1>⚡ Typing Speed Game ⚡</h1>
+
+    <div class="stats">
+
+      <div class="box">
+        <h2 id="time">60</h2>
+        <p>Time</p>
+      </div>
+
+      <div class="box">
+        <h2 id="wpm">0</h2>
+        <p>WPM</p>
+      </div>
+
+      <div class="box">
+        <h2 id="accuracy">100%</h2>
+        <p>Accuracy</p>
+      </div>
+
+    </div>
+
+    <div class="quote-box" id="quote"></div>
+
+    <textarea
+      id="input"
+      placeholder="Start typing here..."
+    ></textarea>
+
+    <button id="restartBtn">Restart Game</button>
+
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
