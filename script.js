@@ -52,7 +52,7 @@ const quotes = [
 ];
 
 let currentQuote = "";
-let time = 100;
+let time = 60;
 let timerStarted = false;
 let interval;
 
