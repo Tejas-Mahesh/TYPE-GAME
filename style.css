@@ -110,7 +110,7 @@ h1{
 .current{
     background:cyan;
     color:black;
-    border-radius:4px;
+    border-radius:5px;
 }
 
 textarea{
@@ -132,17 +132,7 @@ textarea:focus{
 }
 
 button{
-    margin-top:20px;
-    width:100%;
-    padding:15px;
-    border:none;
-    border-radius:50px;
-    font-size:1rem;
-    font-weight:600;
-    cursor:pointer;
-    background:linear-gradient(45deg,cyan,magenta);
-    color:white;
-    transition:0.3s;
+
 }
 
 button:hover{
