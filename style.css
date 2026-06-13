@@ -17,14 +17,7 @@ body{
 }
 
 .bg-animation{
-    position:absolute;
-    width:200%;
-    height:200%;
-    background:
-    radial-gradient(circle, rgba(0,255,255,0.15), transparent 20%),
-    radial-gradient(circle, rgba(255,0,255,0.15), transparent 20%),
-    radial-gradient(circle, rgba(0,100,255,0.15), transparent 20%);
-    animation:move 12s linear infinite;
+   
 }
 
 @keyframes move{
