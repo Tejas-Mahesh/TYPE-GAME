@@ -17,7 +17,14 @@ body{
 }
 
 .bg-animation{
-   
+    position:absolute;
+    width:200%;
+    height:200%;
+    background:
+    radial-gradient(circle, rgba(0,255,255,0.15), transparent 20%),
+    radial-gradient(circle, rgba(255,0,255,0.15), transparent 20%),
+    radial-gradient(circle, rgba(0,100,255,0.15), transparent 20%);
+    animation:move 14s linear infinite;
 }
 
 @keyframes move{
@@ -37,15 +44,13 @@ body{
 .container{
     width:90%;
     max-width:850px;
-    max-width:850px;
     padding:35px;
     border-radius:20px;
-    backdrop-filter:blur(14px);
+    backdrop-filter:blur(15px);
     background:rgba(255,255,255,0.08);
     border:1px solid rgba(255,255,255,0.1);
     box-shadow:0 0 25px rgba(0,255,255,0.2);
     z-index:10;
-   
 }
 
 h1{
@@ -103,7 +108,7 @@ h1{
 .current{
     background:cyan;
     color:black;
-    border-radius:5px;
+    border-radius:4px;
 }
 
 textarea{
@@ -135,7 +140,7 @@ button{
     cursor:pointer;
     background:linear-gradient(45deg,cyan,magenta);
     color:white;
-    transition:0.4s;
+    transition:0.3s;
 }
 
 button:hover{
