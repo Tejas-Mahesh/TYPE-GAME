@@ -2,64 +2,108 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Sky Shooter - Animated Typing Game</title>
-  <link rel="stylesheet" href="style.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sky Typer - Flying Words Typing Game</title>
+  <link rel="stylesheet" href="style.css" />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
 
-  <div class="bg-animation"></div>
-
-  <div class="container">
-    <h1>🦅 Sky Shooter Typing Game 🦜</h1>
-
-    <!-- Game Stats Bar -->
-    <div class="stats">
-      <div class="box">
-        <h2 id="score">0</h2>
-        <p>Score</p>
+  <div class="game-wrapper">
+    <!-- Header Controls & Live Stats -->
+    <header class="game-header">
+      <div class="brand">
+        <h1>🦅 Sky Typer</h1>
       </div>
-      <div class="box">
-        <h2 id="time">60</h2>
-        <p>Time Left (s)</p>
-      </div>
-      <div class="box">
-        <h2 id="wpm">0</h2>
-        <p>WPM</p>
-      </div>
-      <div class="box">
-        <h2 id="accuracy">100%</h2>
-        <p>Accuracy</p>
-      </div>
-    </div>
-
-    <!-- 3 Rows / Lanes for Moving Birds -->
-    <div class="game-sky" id="gameSky">
-      <div class="sky-lane" id="lane-0"></div>
-      <div class="sky-lane" id="lane-1"></div>
-      <div class="sky-lane" id="lane-2"></div>
-
-      <!-- Start / Game Over Overlay -->
-      <div class="overlay" id="overlay">
-        <div class="overlay-card" id="overlayCard">
-          <h2>Ready to Hunt Words?</h2>
-          <p>Type <strong>Start Game</strong> or click the button below to launch the birds!</p>
-          <button id="startBtn">Start Game</button>
+      <div class="stats-bar">
+        <div class="stat-box">
+          <span class="stat-label">Time</span>
+          <span class="stat-value" id="time">60s</span>
+        </div>
+        <div class="stat-box">
+          <span class="stat-label">Score</span>
+          <span class="stat-value highlight" id="score">0</span>
+        </div>
+        <div class="stat-box">
+          <span class="stat-label">WPM</span>
+          <span class="stat-value" id="wpm">0</span>
+        </div>
+        <div class="stat-box">
+          <span class="stat-label">Accuracy</span>
+          <span class="stat-value" id="accuracy">100%</span>
         </div>
       </div>
-    </div>
+    </header>
 
-    <!-- User Input Control -->
-    <div class="input-container">
-      <input 
-        type="text" 
-        id="input" 
-        placeholder='Type "Start Game" to begin or type bird words...' 
-        autocomplete="off"
-      />
+    <!-- Sky Canvas / 3 Flying Rows -->
+    <main class="sky-area" id="skyArea">
+      <div class="track" id="track-0">
+        <div class="track-line"></div>
+      </div>
+      <div class="track" id="track-1">
+        <div class="track-line"></div>
+      </div>
+      <div class="track" id="track-2">
+        <div class="track-line"></div>
+      </div>
+
+      <!-- Overlay prompt prior to game start -->
+      <div class="start-overlay" id="startOverlay">
+        <h2>Ready to Fly?</h2>
+        <p>Type <strong>"start"</strong> in the box below or click the button to launch!</p>
+        <button id="startBtn" class="btn-primary">Start Game</button>
+      </div>
+    </main>
+
+    <!-- Input Control Panel -->
+    <footer class="input-panel">
+      <div class="input-wrapper">
+        <input 
+          type="text" 
+          id="wordInput" 
+          placeholder="Type 'start' to play..." 
+          autocomplete="off" 
+          autofocus
+        />
+      </div>
+      <button id="restartBtn" class="btn-secondary">Restart</button>
+    </footer>
+  </div>
+
+  <!-- Game Over Modal -->
+  <div class="modal-overlay" id="endModal">
+    <div class="modal-card">
+      <h2>🎉 Flight Completed!</h2>
+      <p class="modal-subtitle">Here is your typing performance report:</p>
+      
+      <div class="modal-grid">
+        <div class="modal-stat">
+          <span class="m-val" id="finalScore">0</span>
+          <span class="m-lbl">Total Score</span>
+        </div>
+        <div class="modal-stat">
+          <span class="m-val" id="finalWpm">0</span>
+          <span class="m-lbl">WPM</span>
+        </div>
+        <div class="modal-stat">
+          <span class="m-val" id="finalAccuracy">0%</span>
+          <span class="m-lbl">Accuracy</span>
+        </div>
+        <div class="modal-stat">
+          <span class="m-val" id="finalHits">0</span>
+          <span class="m-lbl">Birds Popped</span>
+        </div>
+      </div>
+
+      <div class="scoring-legend">
+        <div><span class="badge easy">Easy (+1)</span> <span id="easyHits">0</span></div>
+        <div><span class="badge medium">Medium (+2)</span> <span id="medHits">0</span></div>
+        <div><span class="badge hard">Hard (+3)</span> <span id="hardHits">0</span></div>
+      </div>
+
+      <button id="modalRestartBtn" class="btn-primary">Play Again</button>
     </div>
   </div>
 
