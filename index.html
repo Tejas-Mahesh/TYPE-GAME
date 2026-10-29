@@ -3,52 +3,64 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Typing Speed Game</title>
-
+  <title>Sky Shooter - Animated Typing Game</title>
   <link rel="stylesheet" href="style.css">
-
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&display=swap" rel="stylesheet">
 </head>
-
 <body>
 
   <div class="bg-animation"></div>
 
   <div class="container">
+    <h1>🦅 Sky Shooter Typing Game 🦜</h1>
 
-    <h1>⚡ Typing Speed Game ⚡</h1>
-
+    <!-- Game Stats Bar -->
     <div class="stats">
-
+      <div class="box">
+        <h2 id="score">0</h2>
+        <p>Score</p>
+      </div>
       <div class="box">
         <h2 id="time">60</h2>
-        <p>Time</p>
+        <p>Time Left (s)</p>
       </div>
-
       <div class="box">
         <h2 id="wpm">0</h2>
         <p>WPM</p>
       </div>
-
       <div class="box">
         <h2 id="accuracy">100%</h2>
         <p>Accuracy</p>
       </div>
-
     </div>
 
-    <div class="quote-box" id="quote"></div>
+    <!-- 3 Rows / Lanes for Moving Birds -->
+    <div class="game-sky" id="gameSky">
+      <div class="sky-lane" id="lane-0"></div>
+      <div class="sky-lane" id="lane-1"></div>
+      <div class="sky-lane" id="lane-2"></div>
 
-    <textarea
-      id="input"
-      placeholder="Start typing here..."
-    ></textarea>
+      <!-- Start / Game Over Overlay -->
+      <div class="overlay" id="overlay">
+        <div class="overlay-card" id="overlayCard">
+          <h2>Ready to Hunt Words?</h2>
+          <p>Type <strong>Start Game</strong> or click the button below to launch the birds!</p>
+          <button id="startBtn">Start Game</button>
+        </div>
+      </div>
+    </div>
 
-    <button id="restartBtn">Restart Game</button>
-
+    <!-- User Input Control -->
+    <div class="input-container">
+      <input 
+        type="text" 
+        id="input" 
+        placeholder='Type "Start Game" to begin or type bird words...' 
+        autocomplete="off"
+      />
+    </div>
   </div>
 
   <script src="script.js"></script>
