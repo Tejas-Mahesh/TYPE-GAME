@@ -1,155 +1,236 @@
-// Game Elements
-const input = document.getElementById("input");
-const scoreEl = document.getElementById("score");
+// --- Extensive Standard English Vocabulary List ---
+const dictionary = [
+  "apple", "river", "cloud", "breeze", "beacon", "castle", "dragon", "forest",
+  "garden", "harbor", "island", "jungle", "kingdom", "lantern", "meadow", "ocean",
+  "planet", "quarry", "shadow", "timber", "valley", "window", "yellow", "zephyr",
+  "amber", "blossom", "crystal", "diamond", "emerald", "feather", "glimmer", "harvest",
+  "journey", "knapsack", "library", "mountain", "notebook", "orchard", "pyramid",
+  "rainbow", "sapphire", "thunder", "umbrella", "volcano", "whisper", "horizon",
+  "galaxy", "harmony", "miracle", "pioneer", "riddle", "silence", "triumph", "voyage",
+  "wander", "brave", "swift", "bright", "calm", "eager", "gentle", "happy", "jolly",
+  "keen", "lively", "noble", "polite", "quiet", "radiant", "steady", "vibrant", "wise",
+  "anchor", "bridge", "canyon", "desert", "falcon", "glacier", "hunter", "legend",
+  "monarch", "nature", "pebble", "rocket", "spirit", "temple", "velvet", "wisdom",
+  "autumn", "butter", "candle", "dolphins", "engine", "flower", "guitar", "planet"
+];
+
+// --- Unique Bird Emojis for Visual Variety ---
+const birdIcons = ["🦅", "🦜", "🕊️", "🦉", "🦆", "🦩", "🐦"];
+
+// --- State Variables ---
+let score = 0;
+let totalTypedEntries = 0;
+let correctHitsCount = 0;
+let easyHits = 0;
+let mediumHits = 0;
+let hardHits = 0;
+
+let timeLeft = 60;
+let isGameRunning = false;
+let gameTimer = null;
+let spawnTimer = null;
+let activeBirds = [];
+
+// --- DOM References ---
+const skyArea = document.getElementById("skyArea");
+const wordInput = document.getElementById("wordInput");
+const startOverlay = document.getElementById("startOverlay");
+const endModal = document.getElementById("endModal");
+
 const timeEl = document.getElementById("time");
+const scoreEl = document.getElementById("score");
 const wpmEl = document.getElementById("wpm");
 const accuracyEl = document.getElementById("accuracy");
-const overlay = document.getElementById("overlay");
-const overlayCard = document.getElementById("overlayCard");
+
 const startBtn = document.getElementById("startBtn");
+const restartBtn = document.getElementById("restartBtn");
+const modalRestartBtn = document.getElementById("modalRestartBtn");
 
-// Word Lists
-const simpleWords = [
-  "bird", "fly", "sky", "wing", "nest", "fast", "code", "java", "node", 
-  "wind", "tree", "cloud", "blue", "star", "dash", "zoom", "soft", "peak"
-];
+// Final modal stat displays
+const finalScore = document.getElementById("finalScore");
+const finalWpm = document.getElementById("finalWpm");
+const finalAccuracy = document.getElementById("finalAccuracy");
+const finalHits = document.getElementById("finalHits");
+const easyHitsEl = document.getElementById("easyHits");
+const medHitsEl = document.getElementById("medHits");
+const hardHitsEl = document.getElementById("hardHits");
 
-const strongWords = [
-  "javascript", "developer", "algorithm", "responsive", "efficiency", 
-  "programming", "architecture", "microcontroller", "optimization", 
-  "performance", "synchronous", "cybersecurity"
-];
+// --- Input Listener ---
+wordInput.addEventListener("input", (e) => {
+  const typedText = wordInput.value.trim().toLowerCase();
 
-const birdIcons = ["🦅", "🦜", "🕊️", "🦆", "🦉", "🦅"];
-
-// Game Variables
-let score = 0;
-let time = 60;
-let timerInterval = null;
-let spawnInterval = null;
-let gameActive = false;
-
-let totalKeystrokes = 0;
-let correctKeystrokes = 0;
-let totalWordsTyped = 0;
-let correctWordsCount = 0;
-
-let activeBirds = []; // Array of bird objects { id, word, lane, speed, position, points, element }
-
-// Listen for "Start Game" command or Space/Enter typing
-input.addEventListener("input", (e) => {
-  const typedVal = input.value.trim().toLowerCase();
-
-  // If game is inactive, check if user typed "dstart game" or "start game"
-  if (!gameActive) {
-    if (typedVal === "start game" || typedVal === "dstart game") {
-      startGame();
-    }
+  // Trigger game start if user types 'start'
+  if (!isGameRunning && typedText === "start") {
+    startGame();
+    wordInput.value = "";
     return;
   }
 
-  // Record total keystrokes for accuracy calculation
-  if (e.inputType === "insertText") {
-    totalKeystrokes++;
-  }
-});
+  if (!isGameRunning) return;
 
-// Submit word on Space or Enter key
-input.addEventListener("keydown", (e) => {
-  if (!gameActive) return;
+  // Check matching active bird
+  const hitIndex = activeBirds.findIndex(b => b.word.toLowerCase() === typedText);
 
-  if (e.key === " " || e.key === "Enter") {
-    e.preventDefault();
-    const typedWord = input.value.trim().toLowerCase();
+  if (hitIndex !== -1) {
+    totalTypedEntries++;
+    correctHitsCount++;
     
-    if (typedWord.length > 0) {
-      checkWordMatch(typedWord);
-    }
-    input.value = "";
+    const targetBird = activeBirds[hitIndex];
+    
+    // Update Score & Tier Counts
+    score += targetBird.points;
+    if (targetBird.tier === "easy") easyHits++;
+    else if (targetBird.tier === "medium") mediumHits++;
+    else hardHits++;
+
+    // Play Pop animation & remove
+    popBird(targetBird);
+    activeBirds.splice(hitIndex, 1);
+
+    // Clear input box
+    wordInput.value = "";
+    updateStatsUI();
   }
 });
 
-// Start Game Workflow
+// Detect wrong submissions on 'Space' or 'Enter'
+wordInput.addEventListener("keydown", (e) => {
+  if (isGameRunning && (e.key === " " || e.key === "Enter")) {
+    const typedText = wordInput.value.trim();
+    if (typedText !== "") {
+      totalTypedEntries++;
+      wordInput.value = "";
+      updateStatsUI();
+    }
+  }
+});
+
+// --- Game Control Functions ---
 function startGame() {
-  resetStats();
-  gameActive = true;
-  overlay.style.display = "none";
-  input.value = "";
-  input.placeholder = "Type moving words and hit SPACE or ENTER...";
-  input.focus();
+  resetState();
+  isGameRunning = true;
+  startOverlay.style.display = "none";
+  endModal.classList.remove("active");
+  wordInput.value = "";
+  wordInput.placeholder = "Type the flying words...";
+  wordInput.focus();
 
-  // Start 1-minute countdown
-  timerInterval = setInterval(() => {
-    time--;
-    timeEl.innerText = time;
-    calculateWPM();
+  // Start 1-Minute Countdown
+  gameTimer = setInterval(() => {
+    timeLeft--;
+    timeEl.innerText = `${timeLeft}s`;
+    updateStatsUI();
 
-    if (time <= 0) {
+    if (timeLeft <= 0) {
       endGame();
     }
   }, 1000);
 
-  // Spawn birds at regular intervals
+  // Spawn first set of birds immediately and schedule interval
   spawnBird();
-  spawnInterval = setInterval(spawnBird, 1800);
+  spawnTimer = setInterval(spawnBird, 1400);
 
-  // Animation Loop for Moving Birds
+  // Frame Loop for updating bird positions
   requestAnimationFrame(moveBirds);
 }
 
-// Spawn new bird in one of the 3 lanes
-function spawnBird() {
-  if (!gameActive) return;
+function endGame() {
+  isGameRunning = false;
+  clearInterval(gameTimer);
+  clearInterval(spawnTimer);
 
-  // Choose simple (70% chance) vs strong (30% chance)
-  const isStrong = Math.random() > 0.7;
-  const wordList = isStrong ? strongWords : simpleWords;
-  const word = wordList[Math.floor(Math.random() * wordList.length)];
+  // Show Modal Results
+  finalScore.innerText = score;
+  finalWpm.innerText = calculateWPM();
+  finalAccuracy.innerText = calculateAccuracy() + "%";
+  finalHits.innerText = correctHitsCount;
+  easyHitsEl.innerText = easyHits;
+  medHitsEl.innerText = mediumHits;
+  hardHitsEl.innerText = hardHits;
 
-  const points = isStrong ? 20 : 10;
-  const laneIndex = Math.floor(Math.random() * 3);
-  const laneEl = document.getElementById(`lane-${laneIndex}`);
-  const icon = birdIcons[Math.floor(Math.random() * birdIcons.length)];
-
-  // Create Bird DOM element
-  const birdEl = document.createElement("div");
-  birdEl.className = `bird ${isStrong ? 'strong' : 'simple'}`;
-  birdEl.innerHTML = `
-    <span class="bird-icon">${icon}</span>
-    <span class="word-tag">${word}</span>
-    <span class="points-badge">+${points}</span>
-  `;
-
-  laneEl.appendChild(birdEl);
-
-  const speed = isStrong ? 1.2 + Math.random() * 0.8 : 1.8 + Math.random() * 1.2;
-
-  const birdObj = {
-    id: Date.now() + Math.random(),
-    word: word,
-    lane: laneIndex,
-    speed: speed,
-    position: -150, // Start just off-screen to the left
-    points: points,
-    element: birdEl
-  };
-
-  activeBirds.push(birdObj);
+  endModal.classList.add("active");
+  wordInput.placeholder = "Game Over! Click Play Again.";
 }
 
-// Animate bird positions continuously
-function moveBirds() {
-  if (!gameActive) return;
+function resetState() {
+  clearInterval(gameTimer);
+  clearInterval(spawnTimer);
 
-  const containerWidth = document.getElementById("gameSky").offsetWidth;
+  // Remove existing bird DOM elements
+  activeBirds.forEach(b => b.element.remove());
+  activeBirds = [];
+
+  score = 0;
+  totalTypedEntries = 0;
+  correctHitsCount = 0;
+  easyHits = 0;
+  mediumHits = 0;
+  hardHits = 0;
+  timeLeft = 60;
+
+  timeEl.innerText = "60s";
+  scoreEl.innerText = "0";
+  wpmEl.innerText = "0";
+  accuracyEl.innerText = "100%";
+}
+
+// --- Spawning & Moving Birds ---
+function spawnBird() {
+  if (!isGameRunning) return;
+
+  // Pick random word from dictionary
+  const randomWord = dictionary[Math.floor(Math.random() * dictionary.length)];
+  const randomIcon = birdIcons[Math.floor(Math.random() * birdIcons.length)];
+  const randomTrack = Math.floor(Math.random() * 3); // 3 Tracks (0, 1, 2)
+
+  // Categorize complexity
+  let tier = "easy";
+  let points = 1;
+  let speed = 2.0 + Math.random() * 1.0; // Movement speed
+
+  if (randomWord.length >= 8) {
+    tier = "hard";
+    points = 3;
+    speed = 1.2 + Math.random() * 0.8;
+  } else if (randomWord.length >= 6) {
+    tier = "medium";
+    points = 2;
+    speed = 1.6 + Math.random() * 1.0;
+  }
+
+  // Create DOM Element
+  const birdEl = document.createElement("div");
+  birdEl.className = `bird-target ${tier}`;
+  birdEl.innerHTML = `
+    <span class="bird-icon">${randomIcon}</span>
+    <span class="word-label">${randomWord}</span>
+  `;
+
+  const trackContainer = document.getElementById(`track-${randomTrack}`);
+  trackContainer.appendChild(birdEl);
+
+  activeBirds.push({
+    element: birdEl,
+    word: randomWord,
+    tier: tier,
+    points: points,
+    posX: -180,
+    speed: speed
+  });
+}
+
+function moveBirds() {
+  if (!isGameRunning) return;
+
+  const skyWidth = skyArea.clientWidth;
 
   for (let i = activeBirds.length - 1; i >= 0; i--) {
     const bird = activeBirds[i];
-    bird.position += bird.speed;
-    bird.element.style.left = `${bird.position}px`;
+    bird.posX += bird.speed;
+    bird.element.style.left = `${bird.posX}px`;
 
-    // Remove birds that fly beyond the right boundary
-    if (bird.position > containerWidth + 50) {
+    // Remove if bird flies off right edge of screen
+    if (bird.posX > skyWidth + 50) {
       bird.element.remove();
       activeBirds.splice(i, 1);
     }
@@ -158,104 +239,32 @@ function moveBirds() {
   requestAnimationFrame(moveBirds);
 }
 
-// Check typed word against active birds
-function checkWordMatch(typedWord) {
-  totalWordsTyped++;
-  let matchedIndex = activeBirds.findIndex(b => b.word.toLowerCase() === typedWord);
-
-  if (matchedIndex !== -1) {
-    const matchedBird = activeBirds[matchedIndex];
-    
-    // Add score & update keystroke stats
-    score += matchedBird.points;
-    scoreEl.innerText = score;
-    correctWordsCount++;
-    correctKeystrokes += typedWord.length;
-
-    // Visual shot-down effect
-    matchedBird.element.style.transform = "scale(1.4) rotate(20deg)";
-    matchedBird.element.style.opacity = "0";
-    
-    setTimeout(() => {
-      matchedBird.element.remove();
-    }, 200);
-
-    activeBirds.splice(matchedIndex, 1);
-  }
-
-  updateAccuracy();
-  calculateWPM();
+function popBird(birdObj) {
+  birdObj.element.classList.add("popped");
+  setTimeout(() => {
+    birdObj.element.remove();
+  }, 250);
 }
 
-// Calculate Accuracy
-function updateAccuracy() {
-  if (totalKeystrokes === 0) {
-    accuracyEl.innerText = "100%";
-    return;
-  }
-  const acc = Math.round((correctKeystrokes / totalKeystrokes) * 100);
-  accuracyEl.innerText = `${Math.min(100, Math.max(0, acc))}%`;
-}
-
-// Calculate WPM (Words Per Minute based on 5 chars per word standard)
+// --- Metrics Calculations ---
 function calculateWPM() {
-  const timeElapsed = (60 - time) / 60;
-  if (timeElapsed <= 0) return;
-  const wpm = Math.round((correctKeystrokes / 5) / timeElapsed);
-  wpmEl.innerText = wpm || 0;
+  const timeElapsedMinutes = (60 - timeLeft) / 60;
+  if (timeElapsedMinutes <= 0) return 0;
+  return Math.round((correctHitsCount) / timeElapsedMinutes) || 0;
 }
 
-// Reset stats for new round
-function resetStats() {
-  score = 0;
-  time = 60;
-  totalKeystrokes = 0;
-  correctKeystrokes = 0;
-  totalWordsTyped = 0;
-  correctWordsCount = 0;
-
-  scoreEl.innerText = "0";
-  timeEl.innerText = "60";
-  wpmEl.innerText = "0";
-  accuracyEl.innerText = "100%";
-
-  // Clean remaining birds
-  activeBirds.forEach(b => b.element.remove());
-  activeBirds = [];
+function calculateAccuracy() {
+  if (totalTypedEntries === 0) return 100;
+  return Math.min(100, Math.round((correctHitsCount / totalTypedEntries) * 100));
 }
 
-// End Game & Display Results
-function endGame() {
-  gameActive = false;
-  clearInterval(timerInterval);
-  clearInterval(spawnInterval);
-
-  input.disabled = true;
-
-  const finalWPM = wpmEl.innerText;
-  const finalAcc = accuracyEl.innerText;
-
-  overlayCard.innerHTML = `
-    <h2>🎉 Time's Up! Game Over 🎉</h2>
-    <p>Here is your typing performance report:</p>
-    
-    <div class="summary-stats">
-      <div><strong>Final Score:</strong> ${score}</div>
-      <div><strong>Speed:</strong> ${finalWPM} WPM</div>
-      <div><strong>Accuracy:</strong> ${finalAcc}</div>
-      <div><strong>Targets Hit:</strong> ${correctWordsCount} words</div>
-    </div>
-
-    <button id="restartBtn">Play Again</button>
-  `;
-
-  overlay.style.display = "flex";
-
-  document.getElementById("restartBtn").addEventListener("click", () => {
-    input.disabled = false;
-    startGame();
-  });
+function updateStatsUI() {
+  scoreEl.innerText = score;
+  wpmEl.innerText = calculateWPM();
+  accuracyEl.innerText = `${calculateAccuracy()}%`;
 }
 
-// Start Button Event Listener
+// Event Listeners for Start & Restart buttons
 startBtn.addEventListener("click", startGame);
+restartBtn.addEventListener("click", startGame);
+modalRestartBtn.addEventListener("click", startGame);
