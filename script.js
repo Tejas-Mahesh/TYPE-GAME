@@ -319,4 +319,4 @@ function updateStats() {
   scoreVal.innerText = score;
   wpmVal.innerText = calculateWPM();
   accuracyVal.innerText = `${calculateAccuracy()}%`;
-}
+} 
