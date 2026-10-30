@@ -2,480 +2,408 @@
   margin: 0;
   padding: 0;
   box-sizing: border-box;
+}
+
+body, html {
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
   font-family: 'Poppins', sans-serif;
+  background: #090c1a;
+  color: #fff;
 }
 
-body {
+.app-container {
   width: 100vw;
   height: 100vh;
-  overflow: hidden;
-  background: #111;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-/* Fullscreen Theatrical Stage Container */
-.stage-container {
-  width: 100vw;
-  height: 100vh;
-  display: flex;
-  flex-direction: column;
   position: relative;
-  background: radial-gradient(circle at center, #6b0f1a 0%, #300307 100%);
-  border: 18px solid #a31422;
-  box-shadow: inset 0 0 50px rgba(0,0,0,0.8);
+  background: radial-gradient(circle at center, #1b2755 0%, #080c1e 100%);
 }
 
-/* Curtains Top & Bottom */
-.curtain-top {
-  height: 45px;
-  background: linear-gradient(180deg, #8b0000, #500);
-  border-bottom: 4px solid #f39c12;
-  box-shadow: 0 5px 15px rgba(0,0,0,0.5);
-  z-index: 10;
-}
-
-.curtain-bottom {
-  height: 45px;
-  background: linear-gradient(0deg, #8b0000, #500);
-  border-top: 4px solid #f39c12;
-  box-shadow: 0 -5px 15px rgba(0,0,0,0.5);
-  z-index: 10;
-  display: flex;
-  background-image: repeating-linear-gradient(45deg, #8b0000, #8b0000 30px, #b22222 30px, #b22222 60px);
-}
-
-/* Sign Board Header */
-.sign-board {
-  position: absolute;
-  top: 15px;
-  left: 50%;
-  transform: translateX(-50%);
-  background: linear-gradient(135deg, #f1c40f, #d4ac0d);
-  color: #5a1803;
-  font-family: 'Fredoka', cursive;
-  font-size: 1.8rem;
-  padding: 6px 45px;
-  border-radius: 12px;
-  border: 3px solid #fff;
-  box-shadow: 0 6px 0 #9a7d0a, 0 10px 20px rgba(0,0,0,0.6);
-  z-index: 20;
-  text-transform: uppercase;
-  letter-spacing: 2px;
-}
-
-/* Stage Inner & Side Curtains */
-.stage-inner {
-  flex: 1;
-  display: flex;
-  position: relative;
-  overflow: hidden;
-}
-
-.curtain-side {
-  width: 70px;
-  background: linear-gradient(90deg, #400, #8b0000, #400);
-  box-shadow: inset 0 0 20px rgba(0,0,0,0.7);
-  z-index: 5;
-  display: flex;
-  justify-content: center;
-}
-
-.curtain-side.right {
-  align-items: center;
-  padding: 20px 0;
-}
-
-/* Main Stage View Area */
-.stage-canvas {
-  flex: 1;
-  background: radial-gradient(circle at 50% 40%, #e74c3c 0%, #781c14 100%);
-  position: relative;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  overflow: hidden;
-}
-
-/* Screen Management */
-.screen {
+/* =========================================
+   1. SELECTION & MENU SCREEN
+   ========================================= */
+.screen-overlay {
   position: absolute;
   inset: 0;
-  display: none;
-  flex-direction: column;
+  background: rgba(6, 9, 24, 0.92);
+  backdrop-filter: blur(10px);
+  display: flex;
   justify-content: center;
   align-items: center;
-  padding: 20px;
+  z-index: 100;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
 }
 
-.screen.active {
-  display: flex;
+.screen-overlay.active {
+  opacity: 1;
+  pointer-events: all;
 }
 
-/* OPTIONS SCREEN STYLING */
-.options-title {
-  font-family: 'Fredoka', cursive;
-  font-size: 3rem;
-  color: #fff;
-  text-shadow: 3px 3px 0px #000, 0 0 20px rgba(255,230,0,0.6);
-  margin-bottom: 25px;
-  font-style: italic;
-}
-
-.menu-box {
-  width: 85%;
-  max-width: 850px;
-  background: #fffdf5;
-  border-radius: 16px;
-  border: 5px solid #d4af37;
-  box-shadow: 0 15px 40px rgba(0,0,0,0.6);
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 35px 40px;
-  color: #333;
-}
-
-.menu-col {
-  flex: 1;
-}
-
-.col-heading {
-  font-family: 'Fredoka', cursive;
-  font-size: 1.5rem;
-  color: #1b4f72;
-  margin-bottom: 18px;
-  border-bottom: 2px dashed #d4af37;
-  padding-bottom: 6px;
-}
-
-.option-list {
-  list-style: none;
+.stage-frame {
+  width: 90vw;
+  max-width: 1000px;
+  background: linear-gradient(135deg, rgba(30, 41, 89, 0.9), rgba(15, 23, 52, 0.95));
+  border: 3px solid #ffaa00;
+  border-radius: 28px;
+  box-shadow: 0 0 40px rgba(255, 170, 0, 0.3), inset 0 0 20px rgba(0, 0, 0, 0.6);
+  padding: 24px 36px;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 20px;
 }
 
-.option-list li {
-  font-size: 1.15rem;
+.stage-header {
+  text-align: center;
+}
+
+.stage-header h1 {
+  font-family: 'Fredoka', cursive;
+  font-size: 2.8rem;
+  color: #ffcc00;
+  text-shadow: 0 0 15px rgba(255, 204, 0, 0.6);
+}
+
+.stage-header .subtitle {
+  font-size: 1.2rem;
+  color: #a0aec0;
+  letter-spacing: 2px;
+  text-transform: uppercase;
   font-weight: 600;
-  color: #2c3e50;
-  cursor: pointer;
-  padding: 6px 10px;
-  border-radius: 8px;
-  transition: all 0.2s ease;
+}
+
+.options-body {
+  display: grid;
+  grid-template-columns: 1fr 180px 1fr;
+  gap: 20px;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.04);
+  border-radius: 20px;
+  padding: 24px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.option-column h3 {
+  font-family: 'Fredoka', cursive;
+  font-size: 1.4rem;
+  color: #00f2fe;
+  margin-bottom: 12px;
+  text-align: center;
+}
+
+.selector-list {
   display: flex;
-  justify-content: space-between;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.select-btn {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1.5px solid rgba(255, 255, 255, 0.15);
+  color: #d1d5db;
+  padding: 10px 16px;
+  border-radius: 12px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  text-align: left;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  transition: all 0.2s ease;
+}
+
+.select-btn .arrow {
+  opacity: 0;
+  color: #ffcc00;
+  transition: transform 0.2s, opacity 0.2s;
+}
+
+.select-btn:hover {
+  background: rgba(255, 255, 255, 0.12);
+  color: #fff;
+}
+
+.select-btn.active {
+  background: rgba(255, 204, 0, 0.15);
+  border-color: #ffcc00;
+  color: #ffcc00;
+}
+
+.select-btn.active .arrow {
+  opacity: 1;
+  transform: translateX(4px);
+}
+
+.play-center {
+  display: flex;
+  justify-content: center;
   align-items: center;
 }
 
-.option-list li:hover {
-  background: rgba(41, 128, 185, 0.1);
-  color: #2980b9;
+.play-badge {
+  background: rgba(255, 0, 85, 0.2);
+  padding: 16px;
+  border-radius: 24px;
+  border: 2px dashed #ff0055;
 }
 
-.option-list li.selected {
-  color: #d35400;
-  font-weight: 700;
-}
-
-.option-list li .arrow {
-  color: #2980b9;
-  font-size: 1.1rem;
-}
-
-/* Center Play Plaque Button */
-.menu-center {
-  padding: 0 30px;
-  display: flex;
-  justify-content: center;
-}
-
-.play-plaque {
-  background: linear-gradient(135deg, #e74c3c, #c0392b);
-  border: 4px solid #f1c40f;
-  border-radius: 18px;
-  padding: 18px 36px;
-  color: #fff;
+.big-play-btn {
+  padding: 16px 36px;
   font-family: 'Fredoka', cursive;
   font-size: 1.6rem;
+  border: none;
+  border-radius: 50px;
+  background: linear-gradient(135deg, #00c6ff, #0072ff);
+  color: #fff;
   cursor: pointer;
-  box-shadow: 0 8px 0 #78281f, 0 12px 25px rgba(0,0,0,0.5);
-  transition: all 0.15s ease;
-  text-transform: uppercase;
+  box-shadow: 0 10px 25px rgba(0, 114, 255, 0.5);
+  transition: transform 0.2s, box-shadow 0.2s;
 }
 
-.play-plaque:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 11px 0 #78281f, 0 15px 30px rgba(0,0,0,0.6);
+.big-play-btn:hover {
+  transform: scale(1.08);
+  box-shadow: 0 12px 30px rgba(0, 198, 255, 0.8);
 }
 
-.play-plaque:active {
-  transform: translateY(3px);
-  box-shadow: 0 3px 0 #78281f;
+/* =========================================
+   2. GAME PLAYING SCREEN
+   ========================================= */
+.game-screen {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
 }
 
-/* RIGHT SIDE PROGRESS METER */
-.progress-meter {
-  width: 32px;
-  height: 85%;
-  background: #000;
+.top-bar {
+  height: 90px;
+  padding: 0 30px;
+  background: rgba(10, 15, 35, 0.8);
+  border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+}
+
+.stat-card {
+  background: rgba(255, 255, 255, 0.05);
+  padding: 8px 24px;
   border-radius: 16px;
-  border: 2px solid #f39c12;
+  border: 1px solid rgba(255, 255, 255, 0.1);
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: space-between;
-  padding: 8px 0;
-  box-shadow: inset 0 0 10px rgba(0,0,0,0.9);
+  min-width: 120px;
 }
 
-.meter-label {
-  font-size: 0.65rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  color: #f1c40f;
-}
-
-.meter-track {
-  flex: 1;
-  width: 100%;
-  position: relative;
-  margin: 6px 0;
-}
-
-.meter-thumb {
-  position: absolute;
-  left: 50%;
-  transform: translateX(-50%);
-  top: 0%;
-  font-size: 1.1rem;
-  transition: top 0.3s linear;
-}
-
-/* GAMEPLAY SCREEN STYLING */
-.game-score-banner {
-  position: absolute;
-  top: 15px;
-  background: linear-gradient(135deg, #e74c3c, #b03a2e);
-  border: 3px solid #f1c40f;
-  border-radius: 12px;
-  padding: 6px 40px;
-  text-align: center;
-  box-shadow: 0 5px 15px rgba(0,0,0,0.5);
-  z-index: 10;
-}
-
-.banner-title {
-  display: block;
+.stat-title {
   font-size: 0.75rem;
-  letter-spacing: 2px;
-  color: #fce5cd;
-  font-weight: 700;
+  letter-spacing: 1px;
+  color: #a0aec0;
+  font-weight: 600;
 }
 
-.banner-score {
+.stat-num {
   font-family: 'Fredoka', cursive;
-  font-size: 1.8rem;
-  color: #fff;
+  font-size: 1.6rem;
+  color: #00f2fe;
 }
 
-/* 3 Sliding Tracks */
-.tracks-area {
-  width: 100%;
+/* Flying Track Rows */
+.fly-stage {
   flex: 1;
   display: flex;
   flex-direction: column;
   justify-content: space-around;
-  padding: 70px 20px 20px 20px;
   position: relative;
+  overflow: hidden;
+  padding: 20px 0;
+  background: linear-gradient(180deg, rgba(20, 30, 60, 0.4) 0%, rgba(10, 15, 30, 0.7) 100%);
 }
 
 .track-row {
   position: relative;
   width: 100%;
-  height: 28%;
+  height: 30%;
   display: flex;
   align-items: center;
 }
 
-.rope-line {
+.shelf-line {
   position: absolute;
   width: 100%;
-  height: 6px;
-  background: #5d4037;
-  border-top: 2px solid #8d6e63;
-  box-shadow: 0 3px 6px rgba(0,0,0,0.5);
-  z-index: 1;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
 }
 
-/* Sliding Animal Objects (Ducks, Frogs, Pandas) */
-.animal-target {
+/* BIG & CLEAN TARGET CARDS */
+.target-card {
   position: absolute;
-  left: -180px;
+  left: -260px;
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 8px 16px;
-  border-radius: 35px;
-  background: rgba(255, 255, 255, 0.92);
-  border: 3px solid #d4af37;
-  box-shadow: 0 8px 20px rgba(0,0,0,0.4);
-  z-index: 3;
-  white-space: nowrap;
+  gap: 14px;
+  padding: 12px 24px;
+  border-radius: 40px;
+  background: rgba(20, 28, 58, 0.88);
+  border: 3px solid #00f2fe;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5), 0 0 15px rgba(0, 242, 254, 0.3);
   user-select: none;
-  transition: transform 0.2s;
+  white-space: nowrap;
+  transition: transform 0.15s ease, opacity 0.2s ease;
 }
 
-.animal-emoji {
+.target-avatar {
+  font-size: 2.8rem; /* Big animal/bird emoji */
+  filter: drop-shadow(0 4px 6px rgba(0,0,0,0.4));
+  animation: floatBounce 0.6s infinite alternate ease-in-out;
+}
+
+@keyframes floatBounce {
+  from { transform: translateY(-4px); }
+  to { transform: translateY(4px); }
+}
+
+.target-word {
+  font-family: 'Fredoka', cursive;
   font-size: 1.8rem;
+  letter-spacing: 2px;
+  color: #718096; /* Default un-entered/un-typed letters color */
 }
 
-.animal-word {
-  font-family: 'Fredoka', cursive;
-  font-size: 1.2rem;
-  font-weight: 600;
-  color: #2c3e50;
-  letter-spacing: 1px;
+/* REAL-TIME SPELLING HIGHLIGHT */
+.char-typed {
+  color: #00ffff; /* Bright cyan for correctly typed letters */
+  text-shadow: 0 0 8px #00ffff;
 }
 
-/* Animal Hit Pop Animation */
-.animal-target.popped {
-  transform: scale(1.4) rotate(15deg);
+.char-untyped {
+  color: #e2e8f0; /* Crisp white for remaining letters */
+}
+
+/* Card Theme Variations */
+.target-card.duck { border-color: #ffcc00; box-shadow: 0 0 15px rgba(255, 204, 0, 0.4); }
+.target-card.owl { border-color: #a855f7; box-shadow: 0 0 15px rgba(168, 85, 247, 0.4); }
+.target-card.panda { border-color: #38bdf8; box-shadow: 0 0 15px rgba(56, 189, 248, 0.4); }
+.target-card.parrot { border-color: #22c55e; box-shadow: 0 0 15px rgba(34, 197, 94, 0.4); }
+.target-card.flamingo { border-color: #ec4899; box-shadow: 0 0 15px rgba(236, 72, 153, 0.4); }
+
+.target-card.popped {
+  transform: scale(1.3);
   opacity: 0;
-  transition: all 0.2s ease-out;
 }
 
-/* Game Control Footer Bar */
-.game-control-bar {
-  width: 92%;
-  max-width: 900px;
-  background: rgba(0, 0, 0, 0.4);
-  backdrop-filter: blur(8px);
-  padding: 14px 24px;
-  border-radius: 50px;
-  border: 2px solid rgba(255,255,255,0.2);
+/* Bottom Control Panel */
+.bottom-control {
+  height: 90px;
+  padding: 0 30px;
+  background: rgba(10, 15, 35, 0.9);
+  border-top: 2px solid rgba(255, 255, 255, 0.1);
   display: flex;
-  align-items: center;
   gap: 20px;
-  margin-bottom: 20px;
-  z-index: 10;
+  align-items: center;
 }
 
-.timer-display {
-  font-family: 'Fredoka', cursive;
-  font-size: 1.2rem;
-  color: #f1c40f;
-  min-width: 95px;
-}
-
-#gameInput {
+.input-box-holder {
   flex: 1;
-  background: rgba(255, 255, 255, 0.15);
-  border: 2px solid #f1c40f;
-  border-radius: 30px;
-  padding: 10px 22px;
-  font-size: 1.15rem;
+}
+
+#typingInput {
+  width: 100%;
+  padding: 16px 28px;
+  font-size: 1.3rem;
+  border-radius: 50px;
+  border: 2px solid rgba(0, 242, 254, 0.4);
+  background: rgba(255, 255, 255, 0.08);
   color: #fff;
   outline: none;
+  transition: all 0.25s ease;
 }
 
-#gameInput:focus {
-  background: rgba(255, 255, 255, 0.25);
-  box-shadow: 0 0 15px rgba(241, 196, 15, 0.6);
+#typingInput:focus {
+  border-color: #00f2fe;
+  box-shadow: 0 0 20px rgba(0, 242, 254, 0.5);
+  background: rgba(255, 255, 255, 0.14);
 }
 
-.quit-btn {
-  background: #c0392b;
-  border: 2px solid #e74c3c;
+.action-btn {
+  padding: 14px 28px;
+  border-radius: 50px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.1);
   color: #fff;
-  padding: 8px 20px;
-  border-radius: 30px;
+  font-size: 1rem;
   font-weight: 600;
   cursor: pointer;
-  transition: background 0.2s;
+  transition: all 0.2s ease;
 }
 
-.quit-btn:hover {
-  background: #e74c3c;
+.action-btn:hover {
+  background: rgba(255, 255, 255, 0.25);
 }
 
-/* REPORT MODAL OVERLAY */
-.modal-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.85);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.3s ease;
-  z-index: 100;
-}
-
-.modal-overlay.active {
-  opacity: 1;
-  pointer-events: all;
-}
-
-.modal-card {
-  background: #fdfbf7;
-  border: 6px solid #d4af37;
-  border-radius: 24px;
-  padding: 35px;
+/* Results Card Modal */
+.result-card {
+  background: linear-gradient(135deg, #111827, #1f2937);
+  border: 2px solid #00f2fe;
+  border-radius: 28px;
+  padding: 36px;
   width: 90%;
   max-width: 500px;
   text-align: center;
-  box-shadow: 0 25px 50px rgba(0,0,0,0.8);
-  color: #2c3e50;
+  box-shadow: 0 20px 50px rgba(0,0,0,0.8);
 }
 
-.modal-card h2 {
+.result-card h2 {
   font-family: 'Fredoka', cursive;
-  color: #c0392b;
-  font-size: 2rem;
-  margin-bottom: 8px;
+  font-size: 2.2rem;
+  color: #ffcc00;
+  margin-bottom: 6px;
 }
 
-.modal-sub {
-  color: #7f8c8d;
-  font-size: 0.95rem;
-  margin-bottom: 25px;
+.res-sub {
+  color: #9ca3af;
+  margin-bottom: 24px;
 }
 
-.report-stats-grid {
+.metrics-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 16px;
-  margin-bottom: 30px;
+  margin-bottom: 28px;
 }
 
-.rep-box {
-  background: #f4f6f7;
-  border: 2px solid #e5e8e8;
-  border-radius: 16px;
+.m-box {
+  background: rgba(255, 255, 255, 0.05);
   padding: 16px;
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
   display: flex;
   flex-direction: column;
 }
 
-.r-val {
+.m-val {
   font-family: 'Fredoka', cursive;
   font-size: 1.8rem;
-  color: #2980b9;
+  color: #00f2fe;
 }
 
-.r-lbl {
+.m-lbl {
   font-size: 0.75rem;
-  color: #7f8c8d;
+  color: #a0aec0;
   text-transform: uppercase;
-  font-weight: 600;
 }
 
-.modal-btn {
-  font-size: 1.2rem;
-  padding: 14px 28px;
-  width: 100%;
+.btn-group {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+}
+
+.big-play-btn.inline {
+  padding: 12px 28px;
+  font-size: 1.1rem;
 }
