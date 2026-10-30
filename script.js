@@ -1,270 +1,245 @@
-// --- Extensive Standard English Vocabulary List ---
-const dictionary = [
-  "apple", "river", "cloud", "breeze", "beacon", "castle", "dragon", "forest",
-  "garden", "harbor", "island", "jungle", "kingdom", "lantern", "meadow", "ocean",
-  "planet", "quarry", "shadow", "timber", "valley", "window", "yellow", "zephyr",
-  "amber", "blossom", "crystal", "diamond", "emerald", "feather", "glimmer", "harvest",
-  "journey", "knapsack", "library", "mountain", "notebook", "orchard", "pyramid",
-  "rainbow", "sapphire", "thunder", "umbrella", "volcano", "whisper", "horizon",
-  "galaxy", "harmony", "miracle", "pioneer", "riddle", "silence", "triumph", "voyage",
-  "wander", "brave", "swift", "bright", "calm", "eager", "gentle", "happy", "jolly",
-  "keen", "lively", "noble", "polite", "quiet", "radiant", "steady", "vibrant", "wise",
-  "anchor", "bridge", "canyon", "desert", "falcon", "glacier", "hunter", "legend",
-  "monarch", "nature", "pebble", "rocket", "spirit", "temple", "velvet", "wisdom",
-  "autumn", "butter", "candle", "dolphins", "engine", "flower", "guitar", "planet"
-];
+// --- Vocabulary Banks categorized by Lesson Type ---
+const wordBanks = {
+  hard: [
+    "abandon", "absolute", "brilliant", "calendar", "capacity", "category",
+    "charity", "decision", "dynamic", "eclipse", "economy", "facility",
+    "festival", "frontier", "garment", "general", "gravity", "habitat",
+    "horizon", "ignition", "justice", "kinetic", "lantern", "magnet",
+    "navigate", "organic", "pioneer", "quality", "radical", "radiant",
+    "rejected", "satellite", "somalia", "strategy", "terminal", "umbrella"
+  ],
+  easy: [
+    "apple", "beach", "cloud", "dance", "eagle", "flame", "grape", "house",
+    "juice", "kite", "lemon", "mouse", "night", "ocean", "plant", "queen",
+    "river", "smile", "train", "unity", "voice", "water", "youth", "zebra"
+  ],
+  homerow: [
+    "asdf", "jkl;", "dad", "fad", "lad", "sad", "fall", "salad", "glass",
+    "flask", "kajal", "all", "gall", "sass", "jalal", "flag", "lags"
+  ],
+  toprow: [
+    "qwer", "tyui", "op", "power", "quiet", "route", "type", "rope", "tree",
+    "pour", "write", "prop", "tour", "peer", "true", "error", "port"
+  ],
+  bottomrow: [
+    "zxcv", "bnm", "zinc", "mini", "bomb", "cave", "bane", "mac", "van",
+    "zero", "zinc", "vim", "mix", "vim", "zulu"
+  ]
+};
 
-// --- Unique Bird Emojis for Visual Variety ---
-const birdIcons = ["🦅", "🦜", "🕊️", "🦉", "🦆", "🦩", "🐦"];
+const animalEmojis = ["🦆", "🐼", "🐸", "🦉", "🐧", "🐨", "🦊"];
 
-// --- State Variables ---
+// --- Game State Variables ---
+let currentDifficulty = "hard";
+let currentLesson = "hard";
 let score = 0;
-let totalTypedEntries = 0;
-let correctHitsCount = 0;
-let easyHits = 0;
-let mediumHits = 0;
-let hardHits = 0;
-
 let timeLeft = 60;
-let isGameRunning = false;
+let isPlaying = false;
 let gameTimer = null;
 let spawnTimer = null;
-let activeBirds = [];
+let activeAnimals = [];
+let totalTypedCount = 0;
+let correctHits = 0;
 
 // --- DOM References ---
-const skyArea = document.getElementById("skyArea");
-const wordInput = document.getElementById("wordInput");
-const startOverlay = document.getElementById("startOverlay");
-const endModal = document.getElementById("endModal");
+const optionsScreen = document.getElementById("optionsScreen");
+const gameScreen = document.getElementById("gameScreen");
+const playBtn = document.getElementById("playBtn");
+const quitBtn = document.getElementById("quitBtn");
 
-const timeEl = document.getElementById("time");
-const scoreEl = document.getElementById("score");
-const wpmEl = document.getElementById("wpm");
-const accuracyEl = document.getElementById("accuracy");
+const diffList = document.getElementById("diffList");
+const lessonList = document.getElementById("lessonList");
 
-const startBtn = document.getElementById("startBtn");
-const restartBtn = document.getElementById("restartBtn");
-const modalRestartBtn = document.getElementById("modalRestartBtn");
+const liveScoreEl = document.getElementById("liveScore");
+const timeLeftEl = document.getElementById("timeLeft");
+const gameInput = document.getElementById("gameInput");
+const tracksArea = document.getElementById("tracksArea");
+const meterThumb = document.getElementById("meterThumb");
 
-// Final modal stat displays
-const finalScore = document.getElementById("finalScore");
-const finalWpm = document.getElementById("finalWpm");
-const finalAccuracy = document.getElementById("finalAccuracy");
-const finalHits = document.getElementById("finalHits");
-const easyHitsEl = document.getElementById("easyHits");
-const medHitsEl = document.getElementById("medHits");
-const hardHitsEl = document.getElementById("hardHits");
+const reportModal = document.getElementById("reportModal");
+const repScore = document.getElementById("repScore");
+const repWpm = document.getElementById("repWpm");
+const repAccuracy = document.getElementById("repAccuracy");
+const repAnimals = document.getElementById("repAnimals");
+const menuReturnBtn = document.getElementById("menuReturnBtn");
 
-// --- Input Listener ---
-wordInput.addEventListener("input", (e) => {
-  const typedText = wordInput.value.trim().toLowerCase();
-
-  // Trigger game start if user types 'start'
-  if (!isGameRunning && typedText === "start") {
-    startGame();
-    wordInput.value = "";
-    return;
-  }
-
-  if (!isGameRunning) return;
-
-  // Check matching active bird
-  const hitIndex = activeBirds.findIndex(b => b.word.toLowerCase() === typedText);
-
-  if (hitIndex !== -1) {
-    totalTypedEntries++;
-    correctHitsCount++;
-    
-    const targetBird = activeBirds[hitIndex];
-    
-    // Update Score & Tier Counts
-    score += targetBird.points;
-    if (targetBird.tier === "easy") easyHits++;
-    else if (targetBird.tier === "medium") mediumHits++;
-    else hardHits++;
-
-    // Play Pop animation & remove
-    popBird(targetBird);
-    activeBirds.splice(hitIndex, 1);
-
-    // Clear input box
-    wordInput.value = "";
-    updateStatsUI();
-  }
+// --- Menu Selection Handlers ---
+diffList.addEventListener("click", (e) => {
+  const li = e.target.closest("li");
+  if (!li) return;
+  [...diffList.children].forEach(el => el.classList.remove("selected"));
+  li.classList.add("selected");
+  currentDifficulty = li.getAttribute("data-val");
 });
 
-// Detect wrong submissions on 'Space' or 'Enter'
-wordInput.addEventListener("keydown", (e) => {
-  if (isGameRunning && (e.key === " " || e.key === "Enter")) {
-    const typedText = wordInput.value.trim();
-    if (typedText !== "") {
-      totalTypedEntries++;
-      wordInput.value = "";
-      updateStatsUI();
-    }
-  }
+lessonList.addEventListener("click", (e) => {
+  const li = e.target.closest("li");
+  if (!li) return;
+  [...lessonList.children].forEach(el => el.classList.remove("selected"));
+  li.classList.add("selected");
+  currentLesson = li.getAttribute("data-val");
 });
 
-// --- Game Control Functions ---
+// --- Start Game ---
+playBtn.addEventListener("click", startGame);
+
 function startGame() {
-  resetState();
-  isGameRunning = true;
-  startOverlay.style.display = "none";
-  endModal.classList.remove("active");
-  wordInput.value = "";
-  wordInput.placeholder = "Type the flying words...";
-  wordInput.focus();
+  optionsScreen.classList.remove("active");
+  gameScreen.classList.add("active");
+  reportModal.classList.remove("active");
 
-  // Start 1-Minute Countdown
+  resetGameState();
+  isPlaying = true;
+  gameInput.focus();
+
+  // Timer countdown
   gameTimer = setInterval(() => {
     timeLeft--;
-    timeEl.innerText = `${timeLeft}s`;
-    updateStatsUI();
+    timeLeftEl.innerText = timeLeft;
+    
+    // Update vertical side meter thumb progress (0% to 100%)
+    const progressPercent = ((60 - timeLeft) / 60) * 100;
+    meterThumb.style.top = `${progressPercent}%`;
 
     if (timeLeft <= 0) {
       endGame();
     }
   }, 1000);
 
-  // Spawn first set of birds immediately and schedule interval
-  spawnBird();
-  spawnTimer = setInterval(spawnBird, 1400);
+  // Spawn initial animals and set intervals based on difficulty
+  let spawnInterval = currentDifficulty === "hard" ? 1300 : currentDifficulty === "medium" ? 1700 : 2200;
+  spawnAnimal();
+  spawnTimer = setInterval(spawnAnimal, spawnInterval);
 
-  // Frame Loop for updating bird positions
-  requestAnimationFrame(moveBirds);
+  requestAnimationFrame(updateAnimationLoop);
 }
 
-function endGame() {
-  isGameRunning = false;
+function resetGameState() {
   clearInterval(gameTimer);
   clearInterval(spawnTimer);
-
-  // Show Modal Results
-  finalScore.innerText = score;
-  finalWpm.innerText = calculateWPM();
-  finalAccuracy.innerText = calculateAccuracy() + "%";
-  finalHits.innerText = correctHitsCount;
-  easyHitsEl.innerText = easyHits;
-  medHitsEl.innerText = mediumHits;
-  hardHitsEl.innerText = hardHits;
-
-  endModal.classList.add("active");
-  wordInput.placeholder = "Game Over! Click Play Again.";
-}
-
-function resetState() {
-  clearInterval(gameTimer);
-  clearInterval(spawnTimer);
-
-  // Remove existing bird DOM elements
-  activeBirds.forEach(b => b.element.remove());
-  activeBirds = [];
+  activeAnimals.forEach(a => a.element.remove());
+  activeAnimals = [];
 
   score = 0;
-  totalTypedEntries = 0;
-  correctHitsCount = 0;
-  easyHits = 0;
-  mediumHits = 0;
-  hardHits = 0;
   timeLeft = 60;
+  totalTypedCount = 0;
+  correctHits = 0;
 
-  timeEl.innerText = "60s";
-  scoreEl.innerText = "0";
-  wpmEl.innerText = "0";
-  accuracyEl.innerText = "100%";
+  liveScoreEl.innerText = "0";
+  timeLeftEl.innerText = "60";
+  meterThumb.style.top = "0%";
+  gameInput.value = "";
 }
 
-// --- Spawning & Moving Birds ---
-function spawnBird() {
-  if (!isGameRunning) return;
+// --- Spawning & Moving Animals ---
+function spawnAnimal() {
+  if (!isPlaying) return;
 
-  // Pick random word from dictionary
-  const randomWord = dictionary[Math.floor(Math.random() * dictionary.length)];
-  const randomIcon = birdIcons[Math.floor(Math.random() * birdIcons.length)];
-  const randomTrack = Math.floor(Math.random() * 3); // 3 Tracks (0, 1, 2)
+  const wordBank = wordBanks[currentLesson] || wordBanks.hard;
+  const randomWord = wordBank[Math.floor(Math.random() * wordBank.length)];
+  const randomEmoji = animalEmojis[Math.floor(Math.random() * animalEmojis.length)];
+  const randomTrackIndex = Math.floor(Math.random() * 3);
 
-  // Categorize complexity
-  let tier = "easy";
-  let points = 1;
-  let speed = 2.0 + Math.random() * 1.0; // Movement speed
+  // Determine speed based on difficulty
+  let speedMultiplier = currentDifficulty === "hard" ? 2.2 : currentDifficulty === "medium" ? 1.7 : 1.2;
+  let speed = (1.2 + Math.random() * 0.8) * speedMultiplier;
 
-  if (randomWord.length >= 8) {
-    tier = "hard";
-    points = 3;
-    speed = 1.2 + Math.random() * 0.8;
-  } else if (randomWord.length >= 6) {
-    tier = "medium";
-    points = 2;
-    speed = 1.6 + Math.random() * 1.0;
-  }
-
-  // Create DOM Element
-  const birdEl = document.createElement("div");
-  birdEl.className = `bird-target ${tier}`;
-  birdEl.innerHTML = `
-    <span class="bird-icon">${randomIcon}</span>
-    <span class="word-label">${randomWord}</span>
+  // DOM creation
+  const animalEl = document.createElement("div");
+  animalEl.className = "animal-target";
+  animalEl.innerHTML = `
+    <span class="animal-emoji">${randomEmoji}</span>
+    <span class="animal-word">${randomWord}</span>
   `;
 
-  const trackContainer = document.getElementById(`track-${randomTrack}`);
-  trackContainer.appendChild(birdEl);
+  const trackContainer = document.getElementById(`track-${randomTrackIndex}`);
+  trackContainer.appendChild(animalEl);
 
-  activeBirds.push({
-    element: birdEl,
+  activeAnimals.push({
+    element: animalEl,
     word: randomWord,
-    tier: tier,
-    points: points,
     posX: -180,
     speed: speed
   });
 }
 
-function moveBirds() {
-  if (!isGameRunning) return;
+function updateAnimationLoop() {
+  if (!isPlaying) return;
 
-  const skyWidth = skyArea.clientWidth;
+  const canvasWidth = tracksArea.clientWidth;
 
-  for (let i = activeBirds.length - 1; i >= 0; i--) {
-    const bird = activeBirds[i];
-    bird.posX += bird.speed;
-    bird.element.style.left = `${bird.posX}px`;
+  for (let i = activeAnimals.length - 1; i >= 0; i--) {
+    const animal = activeAnimals[i];
+    animal.posX += animal.speed;
+    animal.element.style.left = `${animal.posX}px`;
 
-    // Remove if bird flies off right edge of screen
-    if (bird.posX > skyWidth + 50) {
-      bird.element.remove();
-      activeBirds.splice(i, 1);
+    // Remove animal if it crosses right edge
+    if (animal.posX > canvasWidth + 60) {
+      animal.element.remove();
+      activeAnimals.splice(i, 1);
     }
   }
 
-  requestAnimationFrame(moveBirds);
+  requestAnimationFrame(updateAnimationLoop);
 }
 
-function popBird(birdObj) {
-  birdObj.element.classList.add("popped");
-  setTimeout(() => {
-    birdObj.element.remove();
-  }, 250);
+// --- Typing Input Listener ---
+gameInput.addEventListener("input", () => {
+  if (!isPlaying) return;
+
+  const typedText = gameInput.value.trim().toLowerCase();
+  const matchedIndex = activeAnimals.findIndex(a => a.word.toLowerCase() === typedText);
+
+  if (matchedIndex !== -1) {
+    totalTypedCount++;
+    correctHits++;
+
+    const targetAnimal = activeAnimals[matchedIndex];
+    score += targetAnimal.word.length * 10;
+    liveScoreEl.innerText = score;
+
+    // Pop animation
+    targetAnimal.element.classList.add("popped");
+    setTimeout(() => targetAnimal.element.remove(), 200);
+    activeAnimals.splice(matchedIndex, 1);
+
+    gameInput.value = "";
+  }
+});
+
+gameInput.addEventListener("keydown", (e) => {
+  if (isPlaying && (e.key === "Enter" || e.key === " ")) {
+    if (gameInput.value.trim() !== "") {
+      totalTypedCount++;
+      gameInput.value = "";
+    }
+  }
+});
+
+// --- End Game & Report Modal ---
+function endGame() {
+  isPlaying = false;
+  clearInterval(gameTimer);
+  clearInterval(spawnTimer);
+
+  repScore.innerText = score;
+  repWpm.innerText = Math.round((correctHits / 1) || 0); // 1 minute game session WPM
+  repAccuracy.innerText = totalTypedCount === 0 ? "100%" : `${Math.round((correctHits / totalTypedCount) * 100)}%`;
+  repAnimals.innerText = correctHits;
+
+  reportModal.classList.add("active");
 }
 
-// --- Metrics Calculations ---
-function calculateWPM() {
-  const timeElapsedMinutes = (60 - timeLeft) / 60;
-  if (timeElapsedMinutes <= 0) return 0;
-  return Math.round((correctHitsCount) / timeElapsedMinutes) || 0;
-}
+quitBtn.addEventListener("click", () => {
+  isPlaying = false;
+  clearInterval(gameTimer);
+  clearInterval(spawnTimer);
+  gameScreen.classList.remove("active");
+  optionsScreen.classList.add("active");
+});
 
-function calculateAccuracy() {
-  if (totalTypedEntries === 0) return 100;
-  return Math.min(100, Math.round((correctHitsCount / totalTypedEntries) * 100));
-}
-
-function updateStatsUI() {
-  scoreEl.innerText = score;
-  wpmEl.innerText = calculateWPM();
-  accuracyEl.innerText = `${calculateAccuracy()}%`;
-}
-
-// Event Listeners for Start & Restart buttons
-startBtn.addEventListener("click", startGame);
-restartBtn.addEventListener("click", startGame);
-modalRestartBtn.addEventListener("click", startGame);
+menuReturnBtn.addEventListener("click", () => {
+  reportModal.classList.remove("active");
+  gameScreen.classList.remove("active");
+  optionsScreen.classList.add("active");
+});
