@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Sky Typer - Flying Words Typing Game</title>
+  <title>Carnival Stage Type Toss</title>
   <link rel="stylesheet" href="style.css" />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -11,99 +11,132 @@
 </head>
 <body>
 
-  <div class="game-wrapper">
-    <!-- Header Controls & Live Stats -->
-    <header class="game-header">
-      <div class="brand">
-        <h1>🦅 Sky Typer</h1>
-      </div>
-      <div class="stats-bar">
-        <div class="stat-box">
-          <span class="stat-label">Time</span>
-          <span class="stat-value" id="time">60s</span>
-        </div>
-        <div class="stat-box">
-          <span class="stat-label">Score</span>
-          <span class="stat-value highlight" id="score">0</span>
-        </div>
-        <div class="stat-box">
-          <span class="stat-label">WPM</span>
-          <span class="stat-value" id="wpm">0</span>
-        </div>
-        <div class="stat-box">
-          <span class="stat-label">Accuracy</span>
-          <span class="stat-value" id="accuracy">100%</span>
-        </div>
-      </div>
-    </header>
+  <div class="stage-container">
+    <!-- Top Curtains & Header Sign -->
+    <div class="curtain-top"></div>
+    <div class="sign-board" id="signBoard">Type Toss</div>
 
-    <!-- Sky Canvas / 3 Flying Rows -->
-    <main class="sky-area" id="skyArea">
-      <div class="track" id="track-0">
-        <div class="track-line"></div>
-      </div>
-      <div class="track" id="track-1">
-        <div class="track-line"></div>
-      </div>
-      <div class="track" id="track-2">
-        <div class="track-line"></div>
-      </div>
+    <!-- SIDE CURTAINS WRAPPER -->
+    <div class="stage-inner">
+      <div class="curtain-side left"></div>
 
-      <!-- Overlay prompt prior to game start -->
-      <div class="start-overlay" id="startOverlay">
-        <h2>Ready to Fly?</h2>
-        <p>Type <strong>"start"</strong> in the box below or click the button to launch!</p>
-        <button id="startBtn" class="btn-primary">Start Game</button>
-      </div>
-    </main>
+      <!-- MAIN STAGE DISPLAY VIEW -->
+      <main class="stage-canvas">
 
-    <!-- Input Control Panel -->
-    <footer class="input-panel">
-      <div class="input-wrapper">
-        <input 
-          type="text" 
-          id="wordInput" 
-          placeholder="Type 'start' to play..." 
-          autocomplete="off" 
-          autofocus
-        />
+        <!-- SCREEN 1: OPTIONS MENU -->
+        <section class="screen active" id="optionsScreen">
+          <div class="options-title">Game Options</div>
+          
+          <div class="menu-box">
+            <!-- Difficulty Column -->
+            <div class="menu-col">
+              <div class="col-heading">Difficulty</div>
+              <ul class="option-list" id="diffList">
+                <li class="selected" data-val="hard">Hard <span class="arrow">➔</span></li>
+                <li data-val="medium">Medium <span class="arrow">➔</span></li>
+                <li data-val="easy">Easy <span class="arrow">➔</span></li>
+              </ul>
+            </div>
+
+            <!-- Center Play Button Plaque -->
+            <div class="menu-center">
+              <button id="playBtn" class="play-plaque">
+                <span>Play ➔</span>
+              </button>
+            </div>
+
+            <!-- Lesson Type Column -->
+            <div class="menu-col">
+              <div class="col-heading">Lesson Type</div>
+              <ul class="option-list" id="lessonList">
+                <li class="selected" data-val="hard">Hard Words <span class="arrow">➔</span></li>
+                <li data-val="easy">Easy Words</li>
+                <li data-val="homerow">Home Row</li>
+                <li data-val="toprow">Top Row</li>
+                <li data-val="bottomrow">Bottom Row</li>
+              </ul>
+            </div>
+          </div>
+        </section>
+
+        <!-- SCREEN 2: GAMEPLAY SCREEN -->
+        <section class="screen" id="gameScreen">
+          <!-- Scoreboard Header plaque -->
+          <div class="game-score-banner">
+            <span class="banner-title">SCORE</span>
+            <span class="banner-score" id="liveScore">0</span>
+          </div>
+
+          <!-- 3 Sliding Tracks with Ropes -->
+          <div class="tracks-area" id="tracksArea">
+            <div class="track-row" id="track-0">
+              <div class="rope-line"></div>
+            </div>
+            <div class="track-row" id="track-1">
+              <div class="rope-line"></div>
+            </div>
+            <div class="track-row" id="track-2">
+              <div class="rope-line"></div>
+            </div>
+          </div>
+
+          <!-- Input Footer Control Panel -->
+          <div class="game-control-bar">
+            <div class="timer-display">Time: <span id="timeLeft">60</span>s</div>
+            <input 
+              type="text" 
+              id="gameInput" 
+              placeholder="Type sliding words here..." 
+              autocomplete="off" 
+            />
+            <button id="quitBtn" class="quit-btn">Quit</button>
+          </div>
+        </section>
+
+      </main>
+
+      <div class="curtain-side right">
+        <!-- Right side vertical progress meter / start-end slider -->
+        <div class="progress-meter">
+          <span class="meter-label start">start</span>
+          <div class="meter-track">
+            <div class="meter-thumb" id="meterThumb">🦆</div>
+          </div>
+          <span class="meter-label end">end</span>
+        </div>
       </div>
-      <button id="restartBtn" class="btn-secondary">Restart</button>
-    </footer>
+    </div>
+
+    <!-- Bottom Stage Skirt -->
+    <div class="curtain-bottom"></div>
   </div>
 
-  <!-- Game Over Modal -->
-  <div class="modal-overlay" id="endModal">
+  <!-- GAME OVER / REPORT MODAL -->
+  <div class="modal-overlay" id="reportModal">
     <div class="modal-card">
-      <h2>🎉 Flight Completed!</h2>
-      <p class="modal-subtitle">Here is your typing performance report:</p>
+      <h2>🎪 Carnival Show Over!</h2>
+      <p class="modal-sub">Fantastic performance! Here is your typing scorecard:</p>
       
-      <div class="modal-grid">
-        <div class="modal-stat">
-          <span class="m-val" id="finalScore">0</span>
-          <span class="m-lbl">Total Score</span>
+      <div class="report-stats-grid">
+        <div class="rep-box">
+          <span class="r-val" id="repScore">0</span>
+          <span class="r-lbl">Total Score</span>
         </div>
-        <div class="modal-stat">
-          <span class="m-val" id="finalWpm">0</span>
-          <span class="m-lbl">WPM</span>
+        <div class="rep-box">
+          <span class="r-val" id="repWpm">0</span>
+          <span class="r-lbl">WPM</span>
         </div>
-        <div class="modal-stat">
-          <span class="m-val" id="finalAccuracy">0%</span>
-          <span class="m-lbl">Accuracy</span>
+        <div class="rep-box">
+          <span class="r-val" id="repAccuracy">100%</span>
+          <span class="r-lbl">Accuracy</span>
         </div>
-        <div class="modal-stat">
-          <span class="m-val" id="finalHits">0</span>
-          <span class="m-lbl">Birds Popped</span>
+        <div class="rep-box">
+          <span class="r-val" id="repAnimals">0</span>
+          <span class="r-lbl">Animals Saved</span>
         </div>
       </div>
 
-      <div class="scoring-legend">
-        <div><span class="badge easy">Easy (+1)</span> <span id="easyHits">0</span></div>
-        <div><span class="badge medium">Medium (+2)</span> <span id="medHits">0</span></div>
-        <div><span class="badge hard">Hard (+3)</span> <span id="hardHits">0</span></div>
-      </div>
-
-      <button id="modalRestartBtn" class="btn-primary">Play Again</button>
+      <button id="menuReturnBtn" class="play-plaque modal-btn">Back to Options</button>
     </div>
   </div>
 
