@@ -1,245 +1,322 @@
-// --- Vocabulary Banks categorized by Lesson Type ---
-const wordBanks = {
-  hard: [
-    "abandon", "absolute", "brilliant", "calendar", "capacity", "category",
-    "charity", "decision", "dynamic", "eclipse", "economy", "facility",
-    "festival", "frontier", "garment", "general", "gravity", "habitat",
-    "horizon", "ignition", "justice", "kinetic", "lantern", "magnet",
-    "navigate", "organic", "pioneer", "quality", "radical", "radiant",
-    "rejected", "satellite", "somalia", "strategy", "terminal", "umbrella"
-  ],
+// --- Categorized English Vocabulary Sets ---
+const wordSets = {
   easy: [
-    "apple", "beach", "cloud", "dance", "eagle", "flame", "grape", "house",
-    "juice", "kite", "lemon", "mouse", "night", "ocean", "plant", "queen",
-    "river", "smile", "train", "unity", "voice", "water", "youth", "zebra"
+    "duck", "bird", "bear", "frog", "lion", "wolf", "deer", "swan", "crow", "dove",
+    "park", "lake", "tree", "leaf", "star", "moon", "rain", "wind", "snow", "city"
   ],
-  homerow: [
-    "asdf", "jkl;", "dad", "fad", "lad", "sad", "fall", "salad", "glass",
-    "flask", "kajal", "all", "gall", "sass", "jalal", "flag", "lags"
+  hard: [
+    "flamingo", "elephant", "kangaroo", "hedgehog", "porcupine", "chameleon",
+    "butterfly", "caterpillar", "alligator", "adventure", "moulding", "championship"
   ],
-  toprow: [
-    "qwer", "tyui", "op", "power", "quiet", "route", "type", "rope", "tree",
-    "pour", "write", "prop", "tour", "peer", "true", "error", "port"
+  home: [
+    "fall", "glad", "flag", "flask", "half", "dash", "lads", "sash", "ask", "add"
   ],
-  bottomrow: [
-    "zxcv", "bnm", "zinc", "mini", "bomb", "cave", "bane", "mac", "van",
-    "zero", "zinc", "vim", "mix", "vim", "zulu"
+  top: [
+    "tree", "quiet", "power", "tower", "water", "write", "purity", "pretty", "type"
+  ],
+  bottom: [
+    "cave", "band", "barn", "calm", "vivid", "scan", "mask", "back", "pack", "bank"
   ]
 };
 
-const animalEmojis = ["🦆", "🐼", "🐸", "🦉", "🐧", "🐨", "🦊"];
+// General English pool for 'All English Words'
+const allWordsPool = [
+  ...wordSets.easy,
+  ...wordSets.hard,
+  "castle", "garden", "harbor", "island", "jungle", "lantern", "meadow", "ocean",
+  "planet", "shadow", "timber", "valley", "window", "yellow", "crystal", "diamond",
+  "emerald", "feather", "glimmer", "harvest", "journey", "mountain", "orchard"
+];
 
-// --- Game State Variables ---
-let currentDifficulty = "hard";
-let currentLesson = "hard";
+// Target Avatars & Color Theme Classes
+const targetTypes = [
+  { icon: "🦆", styleClass: "duck" },
+  { icon: "🦉", styleClass: "owl" },
+  { icon: "🐼", styleClass: "panda" },
+  { icon: "🦜", styleClass: "parrot" },
+  { icon: "🦩", styleClass: "flamingo" }
+];
+
+// --- State Management ---
+let selectedDifficulty = "easy";
+let selectedLesson = "all";
+
+let isGameRunning = false;
 let score = 0;
+let totalTypedEntries = 0;
+let correctHits = 0;
 let timeLeft = 60;
-let isPlaying = false;
+
 let gameTimer = null;
 let spawnTimer = null;
-let activeAnimals = [];
-let totalTypedCount = 0;
-let correctHits = 0;
+let activeTargets = [];
 
 // --- DOM References ---
-const optionsScreen = document.getElementById("optionsScreen");
+const startScreen = document.getElementById("startScreen");
 const gameScreen = document.getElementById("gameScreen");
+const endModal = document.getElementById("endModal");
+
 const playBtn = document.getElementById("playBtn");
-const quitBtn = document.getElementById("quitBtn");
+const playAgainBtn = document.getElementById("playAgainBtn");
+const changeOptionsBtn = document.getElementById("changeOptionsBtn");
+const exitGameBtn = document.getElementById("exitGameBtn");
 
-const diffList = document.getElementById("diffList");
-const lessonList = document.getElementById("lessonList");
+const typingInput = document.getElementById("typingInput");
+const flyStage = document.getElementById("flyStage");
 
-const liveScoreEl = document.getElementById("liveScore");
-const timeLeftEl = document.getElementById("timeLeft");
-const gameInput = document.getElementById("gameInput");
-const tracksArea = document.getElementById("tracksArea");
-const meterThumb = document.getElementById("meterThumb");
+const scoreVal = document.getElementById("scoreVal");
+const timeVal = document.getElementById("timeVal");
+const wpmVal = document.getElementById("wpmVal");
+const accuracyVal = document.getElementById("accuracyVal");
 
-const reportModal = document.getElementById("reportModal");
-const repScore = document.getElementById("repScore");
-const repWpm = document.getElementById("repWpm");
-const repAccuracy = document.getElementById("repAccuracy");
-const repAnimals = document.getElementById("repAnimals");
-const menuReturnBtn = document.getElementById("menuReturnBtn");
+const finalScore = document.getElementById("finalScore");
+const finalWpm = document.getElementById("finalWpm");
+const finalAccuracy = document.getElementById("finalAccuracy");
+const finalHits = document.getElementById("finalHits");
 
 // --- Menu Selection Handlers ---
-diffList.addEventListener("click", (e) => {
-  const li = e.target.closest("li");
-  if (!li) return;
-  [...diffList.children].forEach(el => el.classList.remove("selected"));
-  li.classList.add("selected");
-  currentDifficulty = li.getAttribute("data-val");
+document.querySelectorAll("#difficultyList .select-btn").forEach(btn => {
+  btn.addEventListener("click", () => {
+    document.querySelectorAll("#difficultyList .select-btn").forEach(b => b.classList.remove("active"));
+    btn.classList.add("active");
+    selectedDifficulty = btn.dataset.diff;
+  });
 });
 
-lessonList.addEventListener("click", (e) => {
-  const li = e.target.closest("li");
-  if (!li) return;
-  [...lessonList.children].forEach(el => el.classList.remove("selected"));
-  li.classList.add("selected");
-  currentLesson = li.getAttribute("data-val");
+document.querySelectorAll("#lessonList .select-btn").forEach(btn => {
+  btn.addEventListener("click", () => {
+    document.querySelectorAll("#lessonList .select-btn").forEach(b => b.classList.remove("active"));
+    btn.classList.add("active");
+    selectedLesson = btn.dataset.lesson;
+  });
 });
 
-// --- Start Game ---
+// --- Game Life Cycle ---
 playBtn.addEventListener("click", startGame);
+playAgainBtn.addEventListener("click", startGame);
+
+changeOptionsBtn.addEventListener("click", () => {
+  endModal.classList.remove("active");
+  startScreen.classList.add("active");
+});
+
+exitGameBtn.addEventListener("click", () => {
+  endGame();
+  endModal.classList.remove("active");
+  startScreen.classList.add("active");
+});
 
 function startGame() {
-  optionsScreen.classList.remove("active");
-  gameScreen.classList.add("active");
-  reportModal.classList.remove("active");
+  resetState();
+  isGameRunning = true;
 
-  resetGameState();
-  isPlaying = true;
-  gameInput.focus();
+  startScreen.classList.remove("active");
+  endModal.classList.remove("active");
 
-  // Timer countdown
+  typingInput.value = "";
+  typingInput.focus();
+
+  // Speed & Spawning parameters derived from selected options
+  let spawnInterval = 1600;
+  if (selectedDifficulty === "medium") spawnInterval = 1300;
+  if (selectedDifficulty === "hard") spawnInterval = 1000;
+
+  // 1-Minute Clock Timer
   gameTimer = setInterval(() => {
     timeLeft--;
-    timeLeftEl.innerText = timeLeft;
-    
-    // Update vertical side meter thumb progress (0% to 100%)
-    const progressPercent = ((60 - timeLeft) / 60) * 100;
-    meterThumb.style.top = `${progressPercent}%`;
+    timeVal.innerText = `${timeLeft}s`;
+    updateStats();
 
     if (timeLeft <= 0) {
       endGame();
     }
   }, 1000);
 
-  // Spawn initial animals and set intervals based on difficulty
-  let spawnInterval = currentDifficulty === "hard" ? 1300 : currentDifficulty === "medium" ? 1700 : 2200;
-  spawnAnimal();
-  spawnTimer = setInterval(spawnAnimal, spawnInterval);
+  // Spawn Target Objects
+  spawnTarget();
+  spawnTimer = setInterval(spawnTarget, spawnInterval);
 
-  requestAnimationFrame(updateAnimationLoop);
+  // Start Animation Loop
+  requestAnimationFrame(moveTargets);
 }
 
-function resetGameState() {
+function endGame() {
+  isGameRunning = false;
   clearInterval(gameTimer);
   clearInterval(spawnTimer);
-  activeAnimals.forEach(a => a.element.remove());
-  activeAnimals = [];
 
-  score = 0;
-  timeLeft = 60;
-  totalTypedCount = 0;
-  correctHits = 0;
+  finalScore.innerText = score;
+  finalWpm.innerText = calculateWPM();
+  finalAccuracy.innerText = calculateAccuracy() + "%";
+  finalHits.innerText = correctHits;
 
-  liveScoreEl.innerText = "0";
-  timeLeftEl.innerText = "60";
-  meterThumb.style.top = "0%";
-  gameInput.value = "";
+  endModal.classList.add("active");
 }
 
-// --- Spawning & Moving Animals ---
-function spawnAnimal() {
-  if (!isPlaying) return;
+function resetState() {
+  clearInterval(gameTimer);
+  clearInterval(spawnTimer);
 
-  const wordBank = wordBanks[currentLesson] || wordBanks.hard;
-  const randomWord = wordBank[Math.floor(Math.random() * wordBank.length)];
-  const randomEmoji = animalEmojis[Math.floor(Math.random() * animalEmojis.length)];
-  const randomTrackIndex = Math.floor(Math.random() * 3);
+  activeTargets.forEach(t => t.element.remove());
+  activeTargets = [];
 
-  // Determine speed based on difficulty
-  let speedMultiplier = currentDifficulty === "hard" ? 2.2 : currentDifficulty === "medium" ? 1.7 : 1.2;
-  let speed = (1.2 + Math.random() * 0.8) * speedMultiplier;
+  score = 0;
+  totalTypedEntries = 0;
+  correctHits = 0;
+  timeLeft = 60;
 
-  // DOM creation
-  const animalEl = document.createElement("div");
-  animalEl.className = "animal-target";
-  animalEl.innerHTML = `
-    <span class="animal-emoji">${randomEmoji}</span>
-    <span class="animal-word">${randomWord}</span>
+  scoreVal.innerText = "0";
+  timeVal.innerText = "60s";
+  wpmVal.innerText = "0";
+  accuracyVal.innerText = "100%";
+}
+
+// --- Spawning & Target Mechanics ---
+function getWordList() {
+  if (selectedLesson === "all") return allWordsPool;
+  return wordSets[selectedLesson] || allWordsPool;
+}
+
+function spawnTarget() {
+  if (!isGameRunning) return;
+
+  const pool = getWordList();
+  const word = pool[Math.floor(Math.random() * pool.length)];
+  const targetType = targetTypes[Math.floor(Math.random() * targetTypes.length)];
+  const trackIdx = Math.floor(Math.random() * 3);
+
+  // Speed calculated by difficulty
+  let baseSpeed = 1.8;
+  if (selectedDifficulty === "medium") baseSpeed = 2.5;
+  if (selectedDifficulty === "hard") baseSpeed = 3.3;
+
+  const speed = baseSpeed + Math.random() * 0.8;
+
+  // Create Element
+  const cardEl = document.createElement("div");
+  cardEl.className = `target-card ${targetType.styleClass}`;
+
+  // Build character spans for letter-by-letter typing highlight
+  let spansHTML = "";
+  for (let i = 0; i < word.length; i++) {
+    spansHTML += `<span class="char-untyped">${word[i]}</span>`;
+  }
+
+  cardEl.innerHTML = `
+    <span class="target-avatar">${targetType.icon}</span>
+    <span class="target-word">${spansHTML}</span>
   `;
 
-  const trackContainer = document.getElementById(`track-${randomTrackIndex}`);
-  trackContainer.appendChild(animalEl);
+  const trackContainer = document.getElementById(`track-${trackIdx}`);
+  trackContainer.appendChild(cardEl);
 
-  activeAnimals.push({
-    element: animalEl,
-    word: randomWord,
-    posX: -180,
-    speed: speed
+  activeTargets.push({
+    element: cardEl,
+    word: word.toLowerCase(),
+    posX: -280,
+    speed: speed,
+    points: word.length > 6 ? 3 : (word.length > 4 ? 2 : 1)
   });
 }
 
-function updateAnimationLoop() {
-  if (!isPlaying) return;
+function moveTargets() {
+  if (!isGameRunning) return;
 
-  const canvasWidth = tracksArea.clientWidth;
+  const stageWidth = flyStage.clientWidth;
 
-  for (let i = activeAnimals.length - 1; i >= 0; i--) {
-    const animal = activeAnimals[i];
-    animal.posX += animal.speed;
-    animal.element.style.left = `${animal.posX}px`;
+  for (let i = activeTargets.length - 1; i >= 0; i--) {
+    const target = activeTargets[i];
+    target.posX += target.speed;
+    target.element.style.left = `${target.posX}px`;
 
-    // Remove animal if it crosses right edge
-    if (animal.posX > canvasWidth + 60) {
-      animal.element.remove();
-      activeAnimals.splice(i, 1);
+    // Remove targets that move off screen
+    if (target.posX > stageWidth + 60) {
+      target.element.remove();
+      activeTargets.splice(i, 1);
     }
   }
 
-  requestAnimationFrame(updateAnimationLoop);
+  requestAnimationFrame(moveTargets);
 }
 
-// --- Typing Input Listener ---
-gameInput.addEventListener("input", () => {
-  if (!isPlaying) return;
+// --- Real-Time Typing & Letter Highlight Matcher ---
+typingInput.addEventListener("input", () => {
+  if (!isGameRunning) return;
 
-  const typedText = gameInput.value.trim().toLowerCase();
-  const matchedIndex = activeAnimals.findIndex(a => a.word.toLowerCase() === typedText);
+  const typedVal = typingInput.value.trim().toLowerCase();
 
-  if (matchedIndex !== -1) {
-    totalTypedCount++;
+  // 1. Check full word hits
+  const hitIndex = activeTargets.findIndex(t => t.word === typedVal);
+
+  if (hitIndex !== -1) {
+    const hitTarget = activeTargets[hitIndex];
+    score += hitTarget.points;
     correctHits++;
-
-    const targetAnimal = activeAnimals[matchedIndex];
-    score += targetAnimal.word.length * 10;
-    liveScoreEl.innerText = score;
+    totalTypedEntries++;
 
     // Pop animation
-    targetAnimal.element.classList.add("popped");
-    setTimeout(() => targetAnimal.element.remove(), 200);
-    activeAnimals.splice(matchedIndex, 1);
+    hitTarget.element.classList.add("popped");
+    setTimeout(() => hitTarget.element.remove(), 200);
+    activeTargets.splice(hitIndex, 1);
 
-    gameInput.value = "";
+    typingInput.value = "";
+    updateStats();
+    return;
   }
+
+  // 2. Real-Time Letter Highlight Matching for Partial Typing
+  activeTargets.forEach(target => {
+    const wordSpans = target.element.querySelectorAll(".target-word span");
+
+    if (typedVal !== "" && target.word.startsWith(typedVal)) {
+      // Highlight typed character prefix
+      wordSpans.forEach((span, idx) => {
+        if (idx < typedVal.length) {
+          span.className = "char-typed";
+        } else {
+          span.className = "char-untyped";
+        }
+      });
+    } else {
+      // Reset formatting when typing doesn't match
+      wordSpans.forEach(span => span.className = "char-untyped");
+    }
+  });
 });
 
-gameInput.addEventListener("keydown", (e) => {
-  if (isPlaying && (e.key === "Enter" || e.key === " ")) {
-    if (gameInput.value.trim() !== "") {
-      totalTypedCount++;
-      gameInput.value = "";
+// Detect space/enter for completed word submissions
+typingInput.addEventListener("keydown", (e) => {
+  if (isGameRunning && (e.key === " " || e.key === "Enter")) {
+    const typedVal = typingInput.value.trim();
+    if (typedVal !== "") {
+      totalTypedEntries++;
+      typingInput.value = "";
+      
+      // Reset all highlights
+      activeTargets.forEach(target => {
+        const wordSpans = target.element.querySelectorAll(".target-word span");
+        wordSpans.forEach(span => span.className = "char-untyped");
+      });
+
+      updateStats();
     }
   }
 });
 
-// --- End Game & Report Modal ---
-function endGame() {
-  isPlaying = false;
-  clearInterval(gameTimer);
-  clearInterval(spawnTimer);
-
-  repScore.innerText = score;
-  repWpm.innerText = Math.round((correctHits / 1) || 0); // 1 minute game session WPM
-  repAccuracy.innerText = totalTypedCount === 0 ? "100%" : `${Math.round((correctHits / totalTypedCount) * 100)}%`;
-  repAnimals.innerText = correctHits;
-
-  reportModal.classList.add("active");
+// --- Score Calculations ---
+function calculateWPM() {
+  const elapsedMinutes = (60 - timeLeft) / 60;
+  if (elapsedMinutes <= 0) return 0;
+  return Math.round(correctHits / elapsedMinutes) || 0;
 }
 
-quitBtn.addEventListener("click", () => {
-  isPlaying = false;
-  clearInterval(gameTimer);
-  clearInterval(spawnTimer);
-  gameScreen.classList.remove("active");
-  optionsScreen.classList.add("active");
-});
+function calculateAccuracy() {
+  if (totalTypedEntries === 0) return 100;
+  return Math.min(100, Math.round((correctHits / totalTypedEntries) * 100));
+}
 
-menuReturnBtn.addEventListener("click", () => {
-  reportModal.classList.remove("active");
-  gameScreen.classList.remove("active");
-  optionsScreen.classList.add("active");
-});
+function updateStats() {
+  scoreVal.innerText = score;
+  wpmVal.innerText = calculateWPM();
+  accuracyVal.innerText = `${calculateAccuracy()}%`;
+}
