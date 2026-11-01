@@ -1,34 +1,43 @@
-// --- Categorized English Vocabulary Sets ---
+// --- Expanded Categorized Vocabulary Sets ---
 const wordSets = {
   easy: [
     "duck", "bird", "bear", "frog", "lion", "wolf", "deer", "swan", "crow", "dove",
-    "park", "lake", "tree", "leaf", "star", "moon", "rain", "wind", "snow", "city"
+    "park", "lake", "tree", "leaf", "star", "moon", "rain", "wind", "snow", "city",
+    "fish", "seal", "crab", "ship", "boat", "wave", "sand", "hill", "peak", "rock",
+    "cloud", "forest", "stream", "tiger", "zebra", "monkey", "rabbit", "turtle"
   ],
   hard: [
     "flamingo", "elephant", "kangaroo", "hedgehog", "porcupine", "chameleon",
-    "butterfly", "caterpillar", "alligator", "adventure", "moulding", "championship"
+    "butterfly", "caterpillar", "alligator", "adventure", "championship", "ecosystem",
+    "microscope", "playground", "sanctuary", "wilderness", "astronomy", "reflection",
+    "architecture", "destination", "extraordinary", "temperature", "constellation"
   ],
   home: [
-    "fall", "glad", "flag", "flask", "half", "dash", "lads", "sash", "ask", "add"
+    "fall", "glad", "flag", "flask", "half", "dash", "lads", "sash", "ask", "add",
+    "flash", "salad", "glass", "hall", "kafka", "shall", "slash", "all", "dad", "gas"
   ],
   top: [
-    "tree", "quiet", "power", "tower", "water", "write", "purity", "pretty", "type"
+    "tree", "quiet", "power", "tower", "water", "write", "purity", "pretty", "type",
+    "rope", "wire", "poet", "root", "pout", "weep", "trip", "equip", "peer", "pour"
   ],
   bottom: [
-    "cave", "band", "barn", "calm", "vivid", "scan", "mask", "back", "pack", "bank"
+    "cave", "band", "barn", "calm", "vivid", "scan", "mask", "back", "pack", "bank",
+    "lamb", "exam", "zone", "zinc", "monk", "bomb", "verb", "munch", "camp", "jazz"
   ]
 };
 
-// General English pool for 'All English Words'
 const allWordsPool = [
   ...wordSets.easy,
   ...wordSets.hard,
+  ...wordSets.home,
+  ...wordSets.top,
+  ...wordSets.bottom,
   "castle", "garden", "harbor", "island", "jungle", "lantern", "meadow", "ocean",
   "planet", "shadow", "timber", "valley", "window", "yellow", "crystal", "diamond",
-  "emerald", "feather", "glimmer", "harvest", "journey", "mountain", "orchard"
+  "emerald", "feather", "glimmer", "harvest", "journey", "mountain", "orchard",
+  "pyramid", "horizon", "thunder", "volcano", "waterfall", "blizzard", "starlight"
 ];
 
-// Target Avatars & Color Theme Classes
 const targetTypes = [
   { icon: "🦆", styleClass: "duck" },
   { icon: "🦉", styleClass: "owl" },
@@ -43,13 +52,15 @@ let selectedLesson = "all";
 
 let isGameRunning = false;
 let score = 0;
-let totalTypedEntries = 0;
+let totalKeyPresses = 0;
+let correctKeyPresses = 0;
 let correctHits = 0;
 let timeLeft = 60;
 
 let gameTimer = null;
 let spawnTimer = null;
 let activeTargets = [];
+let animationFrameId = null;
 
 // --- DOM References ---
 const startScreen = document.getElementById("startScreen");
@@ -116,10 +127,10 @@ function startGame() {
   typingInput.value = "";
   typingInput.focus();
 
-  // Speed & Spawning parameters derived from selected options
-  let spawnInterval = 1600;
-  if (selectedDifficulty === "medium") spawnInterval = 1300;
-  if (selectedDifficulty === "hard") spawnInterval = 1000;
+  // Spawning intervals based on difficulty
+  let spawnInterval = 1200;
+  if (selectedDifficulty === "medium") spawnInterval = 900;
+  if (selectedDifficulty === "hard") spawnInterval = 650;
 
   // 1-Minute Clock Timer
   gameTimer = setInterval(() => {
@@ -137,13 +148,14 @@ function startGame() {
   spawnTimer = setInterval(spawnTarget, spawnInterval);
 
   // Start Animation Loop
-  requestAnimationFrame(moveTargets);
+  animationFrameId = requestAnimationFrame(moveTargets);
 }
 
 function endGame() {
   isGameRunning = false;
   clearInterval(gameTimer);
   clearInterval(spawnTimer);
+  if (animationFrameId) cancelAnimationFrame(animationFrameId);
 
   finalScore.innerText = score;
   finalWpm.innerText = calculateWPM();
@@ -156,12 +168,14 @@ function endGame() {
 function resetState() {
   clearInterval(gameTimer);
   clearInterval(spawnTimer);
+  if (animationFrameId) cancelAnimationFrame(animationFrameId);
 
   activeTargets.forEach(t => t.element.remove());
   activeTargets = [];
 
   score = 0;
-  totalTypedEntries = 0;
+  totalKeyPresses = 0;
+  correctKeyPresses = 0;
   correctHits = 0;
   timeLeft = 60;
 
@@ -171,7 +185,7 @@ function resetState() {
   accuracyVal.innerText = "100%";
 }
 
-// --- Spawning & Target Mechanics ---
+// --- Spawning & Target Mechanics with Non-Overlapping Lanes ---
 function getWordList() {
   if (selectedLesson === "all") return allWordsPool;
   return wordSets[selectedLesson] || allWordsPool;
@@ -183,20 +197,36 @@ function spawnTarget() {
   const pool = getWordList();
   const word = pool[Math.floor(Math.random() * pool.length)];
   const targetType = targetTypes[Math.floor(Math.random() * targetTypes.length)];
-  const trackIdx = Math.floor(Math.random() * 3);
 
-  // Speed calculated by difficulty
-  let baseSpeed = 1.8;
-  if (selectedDifficulty === "medium") baseSpeed = 2.5;
-  if (selectedDifficulty === "hard") baseSpeed = 3.3;
+  let trackIdx = Math.floor(Math.random() * 4);
+  let attempts = 0;
 
-  const speed = baseSpeed + Math.random() * 0.8;
+  // Ensure targets in the same lane do not overlap/stack
+  while (attempts < 4) {
+    const lastInTrack = activeTargets
+      .filter(t => t.trackIdx === trackIdx)
+      .sort((a, b) => b.posX - a.posX)[0];
+
+    if (!lastInTrack || lastInTrack.posX > -120) {
+      break;
+    }
+    trackIdx = (trackIdx + 1) % 4;
+    attempts++;
+  }
+
+  if (attempts === 4) return;
+
+  // Speed calculation based on difficulty
+  let baseSpeed = 3.2;
+  if (selectedDifficulty === "medium") baseSpeed = 4.5;
+  if (selectedDifficulty === "hard") baseSpeed = 6.0;
+
+  const speed = baseSpeed + Math.random() * 1.0;
 
   // Create Element
   const cardEl = document.createElement("div");
   cardEl.className = `target-card ${targetType.styleClass}`;
 
-  // Build character spans for letter-by-letter typing highlight
   let spansHTML = "";
   for (let i = 0; i < word.length; i++) {
     spansHTML += `<span class="char-untyped">${word[i]}</span>`;
@@ -213,8 +243,9 @@ function spawnTarget() {
   activeTargets.push({
     element: cardEl,
     word: word.toLowerCase(),
-    posX: -280,
+    posX: -420,
     speed: speed,
+    trackIdx: trackIdx,
     points: word.length > 6 ? 3 : (word.length > 4 ? 2 : 1)
   });
 }
@@ -230,14 +261,40 @@ function moveTargets() {
     target.element.style.left = `${target.posX}px`;
 
     // Remove targets that move off screen
-    if (target.posX > stageWidth + 60) {
+    if (target.posX > stageWidth + 80) {
       target.element.remove();
       activeTargets.splice(i, 1);
     }
   }
 
-  requestAnimationFrame(moveTargets);
+  animationFrameId = requestAnimationFrame(moveTargets);
 }
+
+// --- Keypress & Real-Time Accuracy Auditing ---
+typingInput.addEventListener("keydown", (e) => {
+  if (!isGameRunning) return;
+
+  if (["Shift", "Control", "Alt", "CapsLock", "Tab", "Escape", "ArrowLeft", "ArrowRight"].includes(e.key)) {
+    return;
+  }
+
+  totalKeyPresses++;
+
+  if (e.key === "Backspace") {
+    correctKeyPresses = Math.max(0, correctKeyPresses - 1);
+    updateStats();
+    return;
+  }
+
+  const typedVal = (typingInput.value + (e.key.length === 1 ? e.key : "")).trim().toLowerCase();
+  const matchingTarget = activeTargets.find(t => t.word.startsWith(typedVal));
+  
+  if (matchingTarget) {
+    correctKeyPresses++;
+  }
+
+  updateStats();
+});
 
 // --- Real-Time Typing & Letter Highlight Matcher ---
 typingInput.addEventListener("input", () => {
@@ -252,7 +309,6 @@ typingInput.addEventListener("input", () => {
     const hitTarget = activeTargets[hitIndex];
     score += hitTarget.points;
     correctHits++;
-    totalTypedEntries++;
 
     // Pop animation
     hitTarget.element.classList.add("popped");
@@ -269,7 +325,6 @@ typingInput.addEventListener("input", () => {
     const wordSpans = target.element.querySelectorAll(".target-word span");
 
     if (typedVal !== "" && target.word.startsWith(typedVal)) {
-      // Highlight typed character prefix
       wordSpans.forEach((span, idx) => {
         if (idx < typedVal.length) {
           span.className = "char-typed";
@@ -278,32 +333,23 @@ typingInput.addEventListener("input", () => {
         }
       });
     } else {
-      // Reset formatting when typing doesn't match
       wordSpans.forEach(span => span.className = "char-untyped");
     }
   });
 });
 
-// Detect space/enter for completed word submissions
+// Detect space/enter for resetting completed submissions
 typingInput.addEventListener("keydown", (e) => {
   if (isGameRunning && (e.key === " " || e.key === "Enter")) {
-    const typedVal = typingInput.value.trim();
-    if (typedVal !== "") {
-      totalTypedEntries++;
-      typingInput.value = "";
-      
-      // Reset all highlights
-      activeTargets.forEach(target => {
-        const wordSpans = target.element.querySelectorAll(".target-word span");
-        wordSpans.forEach(span => span.className = "char-untyped");
-      });
-
-      updateStats();
-    }
+    typingInput.value = "";
+    activeTargets.forEach(target => {
+      const wordSpans = target.element.querySelectorAll(".target-word span");
+      wordSpans.forEach(span => span.className = "char-untyped");
+    });
   }
 });
 
-// --- Score Calculations ---
+// --- Score & Metric Calculations ---
 function calculateWPM() {
   const elapsedMinutes = (60 - timeLeft) / 60;
   if (elapsedMinutes <= 0) return 0;
@@ -311,12 +357,13 @@ function calculateWPM() {
 }
 
 function calculateAccuracy() {
-  if (totalTypedEntries === 0) return 100;
-  return Math.min(100, Math.round((correctHits / totalTypedEntries) * 100));
+  if (totalKeyPresses <= 0) return 100;
+  const acc = Math.round((correctKeyPresses / totalKeyPresses) * 100);
+  return Math.min(100, Math.max(0, acc));
 }
 
 function updateStats() {
   scoreVal.innerText = score;
   wpmVal.innerText = calculateWPM();
   accuracyVal.innerText = `${calculateAccuracy()}%`;
-} 
+}
