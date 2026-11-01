@@ -4,12 +4,15 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Sky & Carnival Typing Master</title>
+  
+  <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Poppins:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Outfit:wght@400;600;700;800&family=JetBrains+Mono:wght@700&display=swap" rel="stylesheet">
+
   <style>
     /* =========================================
-       RESET & BASE STYLES
+       1. GLOBAL RESET & BASE STYLES
        ========================================= */
     * {
       margin: 0;
@@ -21,26 +24,29 @@
       width: 100vw;
       height: 100vh;
       overflow: hidden;
-      font-family: 'Poppins', sans-serif;
-      background: #060919;
+      font-family: 'Outfit', sans-serif;
+      background: #080b18;
       color: #ffffff;
+      user-select: none;
     }
 
     .app-container {
       width: 100vw;
       height: 100vh;
       position: relative;
-      background: radial-gradient(circle at center, #1e1b4b 0%, #090d29 100%);
+      background: radial-gradient(circle at 50% 30%, #1a1c38 0%, #080b18 100%);
+      display: flex;
+      flex-direction: column;
     }
 
     /* =========================================
-       1. SELECTION & MENU SCREEN (ENHANCED)
+       2. MODAL OVERLAYS (START MENU & END MODAL)
        ========================================= */
     .screen-overlay {
       position: absolute;
       inset: 0;
-      background: rgba(6, 9, 24, 0.94);
-      backdrop-filter: blur(14px);
+      background: rgba(8, 11, 24, 0.94);
+      backdrop-filter: blur(16px);
       display: flex;
       justify-content: center;
       align-items: center;
@@ -48,6 +54,7 @@
       opacity: 0;
       pointer-events: none;
       transition: opacity 0.3s ease;
+      padding: 20px;
     }
 
     .screen-overlay.active {
@@ -55,14 +62,15 @@
       pointer-events: all;
     }
 
+    /* --- START MENU CONTAINER --- */
     .stage-frame {
-      width: 94vw;
-      max-width: 1150px;
-      background: linear-gradient(145deg, rgba(30, 41, 89, 0.95), rgba(15, 23, 52, 0.98));
-      border: 4px solid #ff0055;
-      border-radius: 36px;
-      box-shadow: 0 0 50px rgba(255, 0, 85, 0.4), inset 0 0 30px rgba(0, 0, 0, 0.8);
-      padding: 36px 48px;
+      width: 95vw;
+      max-width: 1100px;
+      background: linear-gradient(145deg, rgba(24, 28, 54, 0.95), rgba(14, 17, 36, 0.98));
+      border: 3px solid #ffaa00;
+      border-radius: 32px;
+      box-shadow: 0 0 50px rgba(255, 170, 0, 0.25), inset 0 0 30px rgba(0, 0, 0, 0.8);
+      padding: 36px 44px;
       display: flex;
       flex-direction: column;
       gap: 28px;
@@ -74,16 +82,17 @@
 
     .stage-header h1 {
       font-family: 'Fredoka', cursive;
-      font-size: 3.8rem;
-      background: linear-gradient(135deg, #ffcc00, #ff0055);
+      font-size: 3.5rem;
+      background: linear-gradient(135deg, #ffe600, #ff8c00);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
-      text-shadow: 0 10px 25px rgba(255, 0, 85, 0.4);
+      text-shadow: 0 10px 25px rgba(255, 140, 0, 0.4);
+      letter-spacing: 1px;
     }
 
     .stage-header .subtitle {
-      font-size: 1.4rem;
-      color: #a5b4fc;
+      font-size: 1.25rem;
+      color: #94a3b8;
       letter-spacing: 3px;
       text-transform: uppercase;
       font-weight: 700;
@@ -92,44 +101,44 @@
 
     .options-body {
       display: grid;
-      grid-template-columns: 1fr 220px 1fr;
-      gap: 28px;
+      grid-template-columns: 1fr 220px 1.2fr;
+      gap: 24px;
       align-items: center;
       background: rgba(255, 255, 255, 0.03);
-      border-radius: 28px;
-      padding: 32px;
-      border: 1.5px solid rgba(255, 255, 255, 0.1);
+      border-radius: 24px;
+      padding: 28px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
     }
 
     .option-column h3 {
       font-family: 'Fredoka', cursive;
-      font-size: 1.8rem;
+      font-size: 1.6rem;
       color: #00f2fe;
       margin-bottom: 16px;
       text-align: center;
-      letter-spacing: 1px;
+      letter-spacing: 0.5px;
     }
 
     .selector-list {
       display: flex;
       flex-direction: column;
-      gap: 12px;
+      gap: 10px;
     }
 
     .select-btn {
-      background: rgba(255, 255, 255, 0.06);
-      border: 2px solid rgba(255, 255, 255, 0.15);
-      color: #e2e8f0;
-      padding: 14px 22px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 2px solid rgba(255, 255, 255, 0.12);
+      color: #cbd5e1;
+      padding: 14px 20px;
       border-radius: 16px;
-      font-size: 1.2rem;
+      font-size: 1.15rem;
       font-weight: 700;
       cursor: pointer;
       text-align: left;
       display: flex;
       align-items: center;
       gap: 12px;
-      transition: all 0.25s ease;
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
     .select-btn .arrow {
@@ -139,22 +148,22 @@
     }
 
     .select-btn:hover {
-      background: rgba(255, 255, 255, 0.15);
+      background: rgba(255, 255, 255, 0.12);
+      color: #ffffff;
       border-color: rgba(255, 255, 255, 0.3);
-      color: #fff;
       transform: translateX(4px);
     }
 
     .select-btn.active {
-      background: linear-gradient(135deg, rgba(255, 204, 0, 0.2), rgba(255, 0, 85, 0.2));
+      background: linear-gradient(90deg, rgba(255, 204, 0, 0.2), rgba(255, 170, 0, 0.05));
       border-color: #ffcc00;
       color: #ffcc00;
-      box-shadow: 0 0 15px rgba(255, 204, 0, 0.3);
+      box-shadow: 0 4px 20px rgba(255, 204, 0, 0.2);
     }
 
     .select-btn.active .arrow {
       opacity: 1;
-      transform: translateX(6px);
+      transform: translateX(4px);
     }
 
     .play-center {
@@ -164,33 +173,35 @@
     }
 
     .play-badge {
-      background: rgba(255, 0, 85, 0.15);
-      padding: 20px;
-      border-radius: 36px;
-      border: 3px dashed #ff0055;
+      background: rgba(255, 0, 110, 0.15);
+      padding: 16px;
+      border-radius: 32px;
+      border: 2px dashed #ff006e;
     }
 
     .big-play-btn {
-      padding: 22px 46px;
+      padding: 22px 42px;
       font-family: 'Fredoka', cursive;
-      font-size: 2.2rem;
+      font-size: 2rem;
       border: none;
-      border-radius: 60px;
-      background: linear-gradient(135deg, #00f2fe, #4facfe);
-      color: #060919;
-      font-weight: 700;
+      border-radius: 50px;
+      background: linear-gradient(135deg, #ff006e, #ffbe0b);
+      color: #ffffff;
       cursor: pointer;
-      box-shadow: 0 12px 30px rgba(0, 242, 254, 0.5);
-      transition: transform 0.25s ease, box-shadow 0.25s ease;
+      box-shadow: 0 12px 35px rgba(255, 0, 110, 0.5);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      display: flex;
+      align-items: center;
+      gap: 10px;
     }
 
     .big-play-btn:hover {
-      transform: scale(1.1);
-      box-shadow: 0 16px 40px rgba(0, 242, 254, 0.8);
+      transform: scale(1.08);
+      box-shadow: 0 16px 45px rgba(255, 0, 110, 0.7);
     }
 
     /* =========================================
-       2. GAME PLAYING SCREEN & TRACKS
+       3. GAMEPLAY SCREEN & HEADER SCOREBOARD
        ========================================= */
     .game-screen {
       width: 100%;
@@ -202,18 +213,19 @@
     .top-bar {
       height: 110px;
       padding: 0 40px;
-      background: rgba(10, 15, 35, 0.85);
-      border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+      background: rgba(12, 16, 36, 0.85);
+      border-bottom: 3px solid rgba(255, 255, 255, 0.1);
       display: flex;
       justify-content: space-around;
       align-items: center;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
     }
 
     .stat-card {
-      background: rgba(255, 255, 255, 0.06);
-      padding: 10px 32px;
+      background: rgba(255, 255, 255, 0.04);
+      padding: 12px 32px;
       border-radius: 20px;
-      border: 1.5px solid rgba(255, 255, 255, 0.12);
+      border: 2px solid rgba(255, 255, 255, 0.08);
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -224,16 +236,19 @@
       font-size: 0.85rem;
       letter-spacing: 2px;
       color: #94a3b8;
-      font-weight: 700;
+      font-weight: 800;
     }
 
     .stat-num {
       font-family: 'Fredoka', cursive;
       font-size: 2.2rem;
       color: #00f2fe;
+      text-shadow: 0 0 12px rgba(0, 242, 254, 0.4);
     }
 
-    /* Flying Track Rows */
+    /* =========================================
+       4. FLYING STAGE & TARGET CARDS
+       ========================================= */
     .fly-stage {
       flex: 1;
       display: flex;
@@ -241,14 +256,14 @@
       justify-content: space-around;
       position: relative;
       overflow: hidden;
-      padding: 30px 0;
-      background: linear-gradient(180deg, rgba(20, 30, 60, 0.4) 0%, rgba(10, 15, 30, 0.7) 100%);
+      padding: 20px 0;
+      background: linear-gradient(180deg, rgba(20, 26, 54, 0.4) 0%, rgba(8, 11, 24, 0.8) 100%);
     }
 
     .track-row {
       position: relative;
       width: 100%;
-      height: 30%;
+      height: 22%;
       display: flex;
       align-items: center;
     }
@@ -260,70 +275,72 @@
       background: linear-gradient(90deg, transparent, rgba(0, 242, 254, 0.25), transparent);
     }
 
-    /* BIGGER & VIBRANT TARGET CARDS */
+    /* TARGET CARDS */
     .target-card {
       position: absolute;
-      left: -350px;
+      left: -450px;
       display: flex;
       align-items: center;
-      gap: 18px;
-      padding: 16px 32px;
+      gap: 16px;
+      padding: 14px 30px;
       border-radius: 50px;
       background: rgba(15, 23, 42, 0.92);
       border: 3.5px solid #00f2fe;
-      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.6), 0 0 20px rgba(0, 242, 254, 0.4);
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.6), 0 0 20px rgba(0, 242, 254, 0.3);
       user-select: none;
       white-space: nowrap;
       transition: transform 0.15s ease, opacity 0.2s ease;
+      z-index: 10;
     }
 
     .target-avatar {
-      font-size: 3.6rem;
-      filter: drop-shadow(0 6px 10px rgba(0,0,0,0.5));
-      animation: floatBounce 0.6s infinite alternate ease-in-out;
+      font-size: 3.2rem;
+      filter: drop-shadow(0 4px 8px rgba(0,0,0,0.5));
+      animation: floatBounce 0.7s infinite alternate ease-in-out;
     }
 
     @keyframes floatBounce {
-      from { transform: translateY(-6px); }
-      to { transform: translateY(6px); }
+      from { transform: translateY(-4px); }
+      to { transform: translateY(4px); }
     }
 
     .target-word {
-      font-family: 'Fredoka', cursive;
-      font-size: 2.5rem;
-      letter-spacing: 3px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 2.4rem;
+      font-weight: 700;
+      letter-spacing: 2px;
     }
 
-    /* REAL-TIME SPELLING HIGHLIGHT */
+    /* COLOR SPELLING HIGHLIGHTS */
     .char-typed {
-      color: #00ffff;
-      text-shadow: 0 0 12px #00ffff;
+      color: #00ffcc;
+      text-shadow: 0 0 12px #00ffcc;
     }
 
     .char-untyped {
       color: #ffffff;
     }
 
-    /* Theme Card Variations */
-    .target-card.duck { border-color: #ffcc00; box-shadow: 0 0 20px rgba(255, 204, 0, 0.5); }
-    .target-card.owl { border-color: #c084fc; box-shadow: 0 0 20px rgba(192, 132, 252, 0.5); }
-    .target-card.panda { border-color: #38bdf8; box-shadow: 0 0 20px rgba(56, 189, 248, 0.5); }
-    .target-card.parrot { border-color: #4ade80; box-shadow: 0 0 20px rgba(74, 222, 128, 0.5); }
-    .target-card.flamingo { border-color: #f472b6; box-shadow: 0 0 20px rgba(244, 114, 182, 0.5); }
-    .target-card.tiger { border-color: #fb923c; box-shadow: 0 0 20px rgba(251, 146, 60, 0.5); }
-    .target-card.dragon { border-color: #f43f5e; box-shadow: 0 0 20px rgba(244, 63, 94, 0.5); }
+    /* CARD THEME VARIATIONS */
+    .target-card.duck { border-color: #ffcc00; box-shadow: 0 0 25px rgba(255, 204, 0, 0.4); }
+    .target-card.owl { border-color: #a855f7; box-shadow: 0 0 25px rgba(168, 85, 247, 0.4); }
+    .target-card.panda { border-color: #38bdf8; box-shadow: 0 0 25px rgba(56, 189, 248, 0.4); }
+    .target-card.parrot { border-color: #22c55e; box-shadow: 0 0 25px rgba(34, 197, 94, 0.4); }
+    .target-card.flamingo { border-color: #ec4899; box-shadow: 0 0 25px rgba(236, 72, 153, 0.4); }
 
     .target-card.popped {
-      transform: scale(1.35);
+      transform: scale(1.4);
       opacity: 0;
     }
 
-    /* Bottom Control Panel */
+    /* =========================================
+       5. BOTTOM CONTROL BAR
+       ========================================= */
     .bottom-control {
       height: 110px;
       padding: 0 40px;
-      background: rgba(10, 15, 35, 0.95);
-      border-top: 2px solid rgba(255, 255, 255, 0.1);
+      background: rgba(10, 14, 30, 0.95);
+      border-top: 3px solid rgba(255, 255, 255, 0.1);
       display: flex;
       gap: 24px;
       align-items: center;
@@ -335,52 +352,54 @@
 
     #typingInput {
       width: 100%;
-      padding: 18px 36px;
-      font-size: 1.7rem;
+      padding: 20px 36px;
+      font-size: 1.8rem;
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 700;
       border-radius: 60px;
       border: 3px solid rgba(0, 242, 254, 0.5);
-      background: rgba(255, 255, 255, 0.08);
-      color: #fff;
+      background: rgba(255, 255, 255, 0.06);
+      color: #ffffff;
       outline: none;
       transition: all 0.25s ease;
-      font-weight: 600;
+      letter-spacing: 2px;
     }
 
     #typingInput:focus {
       border-color: #00f2fe;
       box-shadow: 0 0 30px rgba(0, 242, 254, 0.6);
-      background: rgba(255, 255, 255, 0.15);
+      background: rgba(255, 255, 255, 0.12);
     }
 
     .action-btn {
-      padding: 16px 36px;
-      border-radius: 60px;
+      padding: 18px 36px;
+      border-radius: 50px;
       border: 2px solid rgba(255, 255, 255, 0.2);
-      background: rgba(255, 255, 255, 0.1);
-      color: #fff;
+      background: rgba(255, 255, 255, 0.08);
+      color: #ffffff;
       font-size: 1.2rem;
       font-weight: 700;
       cursor: pointer;
-      transition: all 0.25s ease;
+      transition: all 0.2s ease;
     }
 
     .action-btn:hover {
-      background: rgba(255, 255, 255, 0.25);
-      border-color: #fff;
+      background: rgba(255, 255, 255, 0.2);
+      border-color: rgba(255, 255, 255, 0.4);
     }
 
     /* =========================================
-       3. GAME OVER RESULT MODAL (ENHANCED)
+       6. GAME OVER SUMMARY MODAL
        ========================================= */
     .result-card {
-      background: linear-gradient(145deg, #0f172a, #1e1b4b);
-      border: 4px solid #00f2fe;
+      background: linear-gradient(145deg, #131b36, #0d1226);
+      border: 3px solid #ffcc00;
       border-radius: 36px;
-      padding: 44px 50px;
-      width: 94%;
-      max-width: 650px;
+      padding: 48px;
+      width: 95%;
+      max-width: 620px;
       text-align: center;
-      box-shadow: 0 25px 60px rgba(0,0,0,0.9), 0 0 40px rgba(0, 242, 254, 0.3);
+      box-shadow: 0 25px 60px rgba(0, 0, 0, 0.9), 0 0 40px rgba(255, 204, 0, 0.25);
     }
 
     .result-card h2 {
@@ -405,10 +424,10 @@
     }
 
     .m-box {
-      background: rgba(255, 255, 255, 0.05);
+      background: rgba(255, 255, 255, 0.04);
       padding: 22px;
       border-radius: 24px;
-      border: 1.5px solid rgba(255, 255, 255, 0.1);
+      border: 2px solid rgba(255, 255, 255, 0.08);
       display: flex;
       flex-direction: column;
     }
@@ -448,7 +467,7 @@
       <div class="stage-frame">
         <div class="stage-header">
           <h1>🎪 Typing Target Toss</h1>
-          <p class="subtitle">Game Options</p>
+          <p class="subtitle">Customize Game Mode</p>
         </div>
 
         <div class="options-body">
@@ -471,4 +490,485 @@
           <!-- Play Button Center Banner -->
           <div class="play-center">
             <div class="play-badge">
-              <button id="playBtn" class="
+              <button id="playBtn" class="big-play-btn">Play ▶</button>
+            </div>
+          </div>
+
+          <!-- Lesson / Word Type Selection Column -->
+          <div class="option-column">
+            <h3>Lesson Type</h3>
+            <div class="selector-list" id="lessonList">
+              <button class="select-btn active" data-lesson="all">
+                <span class="arrow">➔</span> All Words Pool
+              </button>
+              <button class="select-btn" data-lesson="easy">
+                <span class="arrow">➔</span> Easy Vocabulary
+              </button>
+              <button class="select-btn" data-lesson="hard">
+                <span class="arrow">➔</span> Advanced Words
+              </button>
+              <button class="select-btn" data-lesson="home">
+                <span class="arrow">➔</span> Home Row Keys
+              </button>
+              <button class="select-btn" data-lesson="top">
+                <span class="arrow">➔</span> Top Row Keys
+              </button>
+              <button class="select-btn" data-lesson="bottom">
+                <span class="arrow">➔</span> Bottom Row Keys
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2. GAME PLAYING SCREEN -->
+    <div id="gameScreen" class="game-screen">
+      <!-- Top Scoreboard Bar -->
+      <header class="top-bar">
+        <div class="stat-card">
+          <span class="stat-title">SCORE</span>
+          <span id="scoreVal" class="stat-num">0</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-title">TIME</span>
+          <span id="timeVal" class="stat-num">60s</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-title">WPM</span>
+          <span id="wpmVal" class="stat-num">0</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-title">ACCURACY</span>
+          <span id="accuracyVal" class="stat-num">100%</span>
+        </div>
+      </header>
+
+      <!-- 4 Flying Track Rows -->
+      <main class="fly-stage" id="flyStage">
+        <div class="track-row" id="track-0"><div class="shelf-line"></div></div>
+        <div class="track-row" id="track-1"><div class="shelf-line"></div></div>
+        <div class="track-row" id="track-2"><div class="shelf-line"></div></div>
+        <div class="track-row" id="track-3"><div class="shelf-line"></div></div>
+      </main>
+
+      <!-- Bottom Typing Input Field -->
+      <footer class="bottom-control">
+        <div class="input-box-holder">
+          <input 
+            type="text" 
+            id="typingInput" 
+            placeholder="Type matching target words..." 
+            autocomplete="off" 
+            autofocus
+          />
+        </div>
+        <button id="exitGameBtn" class="action-btn">Menu</button>
+      </footer>
+    </div>
+
+    <!-- 3. GAME OVER MODAL -->
+    <div id="endModal" class="screen-overlay">
+      <div class="result-card">
+        <h2>🎉 Round Complete!</h2>
+        <p class="res-sub">Performance Summary</p>
+
+        <div class="metrics-grid">
+          <div class="m-box">
+            <span class="m-val" id="finalScore">0</span>
+            <span class="m-lbl">Total Score</span>
+          </div>
+          <div class="m-box">
+            <span class="m-val" id="finalWpm">0</span>
+            <span class="m-lbl">Words Per Min</span>
+          </div>
+          <div class="m-box">
+            <span class="m-val" id="finalAccuracy">100%</span>
+            <span class="m-lbl">Accuracy Rate</span>
+          </div>
+          <div class="m-box">
+            <span class="m-val" id="finalHits">0</span>
+            <span class="m-lbl">Targets Popped</span>
+          </div>
+        </div>
+
+        <div class="btn-group">
+          <button id="playAgainBtn" class="big-play-btn inline">Play Again 🔄</button>
+          <button id="changeOptionsBtn" class="action-btn">Main Menu</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    // --- Categorized Comprehensive Word Sets ---
+    const wordSets = {
+      easy: [
+        "duck", "bird", "bear", "frog", "lion", "wolf", "deer", "swan", "crow", "dove",
+        "park", "lake", "tree", "leaf", "star", "moon", "rain", "wind", "snow", "city",
+        "fish", "seal", "crab", "ship", "boat", "wave", "sand", "hill", "peak", "rock"
+      ],
+      hard: [
+        "flamingo", "elephant", "kangaroo", "hedgehog", "porcupine", "chameleon",
+        "butterfly", "caterpillar", "alligator", "adventure", "championship", "ecosystem",
+        "microscope", "playground", "sanctuary", "wilderness", "astronomy", "reflection"
+      ],
+      home: [
+        "fall", "glad", "flag", "flask", "half", "dash", "lads", "sash", "ask", "add",
+        "flash", "salad", "glass", "hall", "fall", "kafka", "shall", "slash"
+      ],
+      top: [
+        "tree", "quiet", "power", "tower", "water", "write", "purity", "pretty", "type",
+        "rope", "wire", "poet", "root", "pout", "weep", "trip", "equip", "peer"
+      ],
+      bottom: [
+        "cave", "band", "barn", "calm", "vivid", "scan", "mask", "back", "pack", "bank",
+        "lamb", "exam", "zone", "zinc", "monk", "bomb", "verb", "munch"
+      ]
+    };
+
+    const allWordsPool = [
+      ...wordSets.easy,
+      ...wordSets.hard,
+      ...wordSets.home,
+      ...wordSets.top,
+      ...wordSets.bottom,
+      "castle", "garden", "harbor", "island", "jungle", "lantern", "meadow", "ocean",
+      "planet", "shadow", "timber", "valley", "window", "yellow", "crystal", "diamond",
+      "emerald", "feather", "glimmer", "harvest", "journey", "mountain", "orchard",
+      "pyramid", "horizon", "thunder", "volcano", "waterfall", "blizzard", "starlight"
+    ];
+
+    const targetTypes = [
+      { icon: "🦆", styleClass: "duck" },
+      { icon: "🦉", styleClass: "owl" },
+      { icon: "🐼", styleClass: "panda" },
+      { icon: "🦜", styleClass: "parrot" },
+      { icon: "🦩", styleClass: "flamingo" }
+    ];
+
+    // --- State Management Variables ---
+    let selectedDifficulty = "easy";
+    let selectedLesson = "all";
+
+    let isGameRunning = false;
+    let score = 0;
+    let totalKeyPresses = 0;
+    let correctKeyPresses = 0;
+    let correctHits = 0;
+    let timeLeft = 60;
+
+    let gameTimer = null;
+    let spawnTimer = null;
+    let activeTargets = [];
+    let animationFrameId = null;
+
+    // --- DOM Elements ---
+    const startScreen = document.getElementById("startScreen");
+    const gameScreen = document.getElementById("gameScreen");
+    const endModal = document.getElementById("endModal");
+
+    const playBtn = document.getElementById("playBtn");
+    const playAgainBtn = document.getElementById("playAgainBtn");
+    const changeOptionsBtn = document.getElementById("changeOptionsBtn");
+    const exitGameBtn = document.getElementById("exitGameBtn");
+
+    const typingInput = document.getElementById("typingInput");
+    const flyStage = document.getElementById("flyStage");
+
+    const scoreVal = document.getElementById("scoreVal");
+    const timeVal = document.getElementById("timeVal");
+    const wpmVal = document.getElementById("wpmVal");
+    const accuracyVal = document.getElementById("accuracyVal");
+
+    const finalScore = document.getElementById("finalScore");
+    const finalWpm = document.getElementById("finalWpm");
+    const finalAccuracy = document.getElementById("finalAccuracy");
+    const finalHits = document.getElementById("finalHits");
+
+    // --- Option Listeners ---
+    document.querySelectorAll("#difficultyList .select-btn").forEach(btn => {
+      btn.addEventListener("click", () => {
+        document.querySelectorAll("#difficultyList .select-btn").forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+        selectedDifficulty = btn.dataset.diff;
+      });
+    });
+
+    document.querySelectorAll("#lessonList .select-btn").forEach(btn => {
+      btn.addEventListener("click", () => {
+        document.querySelectorAll("#lessonList .select-btn").forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+        selectedLesson = btn.dataset.lesson;
+      });
+    });
+
+    // --- Lifecycle Handlers ---
+    playBtn.addEventListener("click", startGame);
+    playAgainBtn.addEventListener("click", startGame);
+
+    changeOptionsBtn.addEventListener("click", () => {
+      endModal.classList.remove("active");
+      startScreen.classList.add("active");
+    });
+
+    exitGameBtn.addEventListener("click", () => {
+      endGame();
+      endModal.classList.remove("active");
+      startScreen.classList.add("active");
+    });
+
+    function startGame() {
+      resetState();
+      isGameRunning = true;
+
+      startScreen.classList.remove("active");
+      endModal.classList.remove("active");
+
+      typingInput.value = "";
+      typingInput.focus();
+
+      // Faster Spawn Intervals Based on Difficulty
+      let spawnInterval = 1200;
+      if (selectedDifficulty === "medium") spawnInterval = 900;
+      if (selectedDifficulty === "hard") spawnInterval = 650;
+
+      // Timer
+      gameTimer = setInterval(() => {
+        timeLeft--;
+        timeVal.innerText = `${timeLeft}s`;
+        updateStats();
+
+        if (timeLeft <= 0) {
+          endGame();
+        }
+      }, 1000);
+
+      // Spawning loop
+      spawnTarget();
+      spawnTimer = setInterval(spawnTarget, spawnInterval);
+
+      // Animation Loop
+      animationFrameId = requestAnimationFrame(moveTargets);
+    }
+
+    function endGame() {
+      isGameRunning = false;
+      clearInterval(gameTimer);
+      clearInterval(spawnTimer);
+      if (animationFrameId) cancelAnimationFrame(animationFrameId);
+
+      finalScore.innerText = score;
+      finalWpm.innerText = calculateWPM();
+      finalAccuracy.innerText = calculateAccuracy() + "%";
+      finalHits.innerText = correctHits;
+
+      endModal.classList.add("active");
+    }
+
+    function resetState() {
+      clearInterval(gameTimer);
+      clearInterval(spawnTimer);
+      if (animationFrameId) cancelAnimationFrame(animationFrameId);
+
+      activeTargets.forEach(t => t.element.remove());
+      activeTargets = [];
+
+      score = 0;
+      totalKeyPresses = 0;
+      correctKeyPresses = 0;
+      correctHits = 0;
+      timeLeft = 60;
+
+      scoreVal.innerText = "0";
+      timeVal.innerText = "60s";
+      wpmVal.innerText = "0";
+      accuracyVal.innerText = "100%";
+    }
+
+    function getWordList() {
+      if (selectedLesson === "all") return allWordsPool;
+      return wordSets[selectedLesson] || allWordsPool;
+    }
+
+    function spawnTarget() {
+      if (!isGameRunning) return;
+
+      const pool = getWordList();
+      const word = pool[Math.floor(Math.random() * pool.length)];
+      const targetType = targetTypes[Math.floor(Math.random() * targetTypes.length)];
+
+      // Pick track and check collision/overlap to ensure non-overlapping spacing
+      let trackIdx = Math.floor(Math.random() * 4);
+      let attempts = 0;
+      
+      while (attempts < 4) {
+        const lastInTrack = activeTargets
+          .filter(t => t.trackIdx === trackIdx)
+          .sort((a, b) => b.posX - a.posX)[0];
+
+        // Safe spacing threshold (320px)
+        if (!lastInTrack || lastInTrack.posX > -100) {
+          break;
+        }
+        trackIdx = (trackIdx + 1) % 4;
+        attempts++;
+      }
+
+      if (attempts === 4) return; // Skip if all lanes are densely packed
+
+      // Faster Speeds
+      let baseSpeed = 3.2;
+      if (selectedDifficulty === "medium") baseSpeed = 4.5;
+      if (selectedDifficulty === "hard") baseSpeed = 6.0;
+      const speed = baseSpeed + Math.random() * 1.0;
+
+      // Element creation
+      const cardEl = document.createElement("div");
+      cardEl.className = `target-card ${targetType.styleClass}`;
+
+      let spansHTML = "";
+      for (let i = 0; i < word.length; i++) {
+        spansHTML += `<span class="char-untyped">${word[i]}</span>`;
+      }
+
+      cardEl.innerHTML = `
+        <span class="target-avatar">${targetType.icon}</span>
+        <span class="target-word">${spansHTML}</span>
+      `;
+
+      const trackContainer = document.getElementById(`track-${trackIdx}`);
+      trackContainer.appendChild(cardEl);
+
+      activeTargets.push({
+        element: cardEl,
+        word: word.toLowerCase(),
+        posX: -400,
+        speed: speed,
+        trackIdx: trackIdx,
+        points: word.length > 6 ? 3 : (word.length > 4 ? 2 : 1)
+      });
+    }
+
+    function moveTargets() {
+      if (!isGameRunning) return;
+
+      const stageWidth = flyStage.clientWidth;
+
+      for (let i = activeTargets.length - 1; i >= 0; i--) {
+        const target = activeTargets[i];
+        target.posX += target.speed;
+        target.element.style.left = `${target.posX}px`;
+
+        // Out of boundary check
+        if (target.posX > stageWidth + 80) {
+          target.element.remove();
+          activeTargets.splice(i, 1);
+        }
+      }
+
+      animationFrameId = requestAnimationFrame(moveTargets);
+    }
+
+    // --- Typing and Real-Time Accuracy Calculation ---
+    typingInput.addEventListener("keydown", (e) => {
+      if (!isGameRunning) return;
+
+      // Ignore utility keys
+      if (["Shift", "Control", "Alt", "CapsLock", "Tab", "Escape", "ArrowLeft", "ArrowRight"].includes(e.key)) {
+        return;
+      }
+
+      totalKeyPresses++;
+
+      if (e.key === "Backspace") {
+        correctKeyPresses = Math.max(0, correctKeyPresses - 1);
+        updateStats();
+        return;
+      }
+
+      const typedVal = (typingInput.value + (e.key.length === 1 ? e.key : "")).trim().toLowerCase();
+
+      // Validate letter key match
+      const matchingTarget = activeTargets.find(t => t.word.startsWith(typedVal));
+      if (matchingTarget) {
+        correctKeyPresses++;
+      }
+
+      updateStats();
+    });
+
+    typingInput.addEventListener("input", () => {
+      if (!isGameRunning) return;
+
+      const typedVal = typingInput.value.trim().toLowerCase();
+
+      // Check full word match
+      const hitIndex = activeTargets.findIndex(t => t.word === typedVal);
+
+      if (hitIndex !== -1) {
+        const hitTarget = activeTargets[hitIndex];
+        score += hitTarget.points;
+        correctHits++;
+
+        // Visual popping effect
+        hitTarget.element.classList.add("popped");
+        setTimeout(() => hitTarget.element.remove(), 200);
+        activeTargets.splice(hitIndex, 1);
+
+        typingInput.value = "";
+        updateStats();
+        return;
+      }
+
+      // Real-time spelling character coloring feedback
+      activeTargets.forEach(target => {
+        const wordSpans = target.element.querySelectorAll(".target-word span");
+
+        if (typedVal !== "" && target.word.startsWith(typedVal)) {
+          wordSpans.forEach((span, idx) => {
+            if (idx < typedVal.length) {
+              span.className = "char-typed";
+            } else {
+              span.className = "char-untyped";
+            }
+          });
+        } else {
+          wordSpans.forEach(span => span.className = "char-untyped");
+        }
+      });
+    });
+
+    // Reset target highlight on word clearing
+    typingInput.addEventListener("keydown", (e) => {
+      if (isGameRunning && (e.key === " " || e.key === "Enter")) {
+        typingInput.value = "";
+        activeTargets.forEach(target => {
+          const wordSpans = target.element.querySelectorAll(".target-word span");
+          wordSpans.forEach(span => span.className = "char-untyped");
+        });
+      }
+    });
+
+    // --- Math Metrics ---
+    function calculateWPM() {
+      const elapsedMinutes = (60 - timeLeft) / 60;
+      if (elapsedMinutes <= 0) return 0;
+      return Math.round((correctHits) / elapsedMinutes) || 0;
+    }
+
+    function calculateAccuracy() {
+      if (totalKeyPresses <= 0) return 100;
+      const acc = Math.round((correctKeyPresses / totalKeyPresses) * 100);
+      return Math.min(100, Math.max(0, acc));
+    }
+
+    function updateStats() {
+      scoreVal.innerText = score;
+      wpmVal.innerText = calculateWPM();
+      accuracyVal.innerText = `${calculateAccuracy()}%`;
+    }
+  </script>
+</body>
+</html>
